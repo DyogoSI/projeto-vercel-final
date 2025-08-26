@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apadrinhar Cartinha</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -10,7 +9,7 @@
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
     <a href="index.html">Sobre</a>
-    <a href="cadastro.html">Cadastro (Admin)</a>
+    <a href="admin.html">Área do Admin</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
   </nav>
   <div class="container">
@@ -21,7 +20,7 @@
     <form>
       <label for="nome">Seu Nome:</label>
       <input type="text" id="nome" required>
-      <label for="telefone">Telefone:</label>
+      <label for="telefone">Telefone (com DDD):</label>
       <input type="tel" id="telefone" required>
       <label for="endereco">Endereço de Entrega do Presente:</label>
       <textarea id="endereco" rows="4" required></textarea>
@@ -32,29 +31,35 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const cartinhaId = localStorage.getItem('cartinhaId');
       const detalheDiv = document.getElementById('detalhe-cartinha');
-      const form = document.querySelector('form');
       if (!cartinhaId) {
-        detalheDiv.innerHTML = '<h2>Erro: Nenhuma cartinha selecionada. Volte para a lista.</h2>';
-        form.style.display = 'none';
+        detalheDiv.innerHTML = '<h2>Erro: Nenhuma cartinha selecionada.</h2>';
+        document.querySelector('form').style.display = 'none';
         return;
       }
-      try {
-        const response = await fetch(`/api/server?id=${cartinhaId}`); // GET para /api/server com ID
-        const cartinha = await response.json();
-        detalheDiv.innerHTML = `
-          <h3>${cartinha.nome_aluno} - Turma ${cartinha.turma}</h3>
-          <div class="texto-cartinha"><p>${cartinha.texto.replace(/\n/g, '<br>')}</p></div>
-        `;
-      } catch (error) {
-        detalheDiv.innerHTML = '<h2>Erro ao carregar detalhes da cartinha.</h2>';
-      }
+      const response = await fetch(`/api/server?id=${cartinhaId}`);
+      const cartinha = await response.json();
+      detalheDiv.innerHTML = `<h3>${cartinha.nome_aluno} - Turma ${cartinha.turma}</h3><div class="texto-cartinha"><p>${cartinha.texto.replace(/\n/g, '<br>')}</p></div>`;
     });
+
     document.querySelector('form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const cartinhaId = localStorage.getItem('cartinhaId');
-      const response = await fetch(`/api/server?id=${cartinhaId}`, { method: 'PUT' }); // PUT para /api/server com ID
+      
+      // Monta o corpo da requisição com os dados do padrinho
+      const body = JSON.stringify({
+        nome: document.getElementById('nome').value,
+        telefone: document.getElementById('telefone').value,
+        endereco: document.getElementById('endereco').value
+      });
+
+      const response = await fetch(`/api/server?id=${cartinhaId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
+      
       if (response.ok) {
-        alert('Obrigado por apadrinhar!');
+        alert('Obrigado por apadrinhar! Sua boa ação foi registrada.');
         localStorage.removeItem('cartinhaId');
         window.location.href = 'cartinhas.html';
       } else {
