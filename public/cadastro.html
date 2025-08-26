@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Cartinhas</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>🎄 Projeto Cartinhas de Natal 🎄</header>
+  <nav>
+    <a href="index.html">Sobre</a>
+    <a href="cadastro.html">Cadastro (Admin)</a>
+    <a href="cartinhas.html">Ver Cartinhas</a>
+  </nav>
+  <div class="container">
+    <h1>Cadastro de Cartinha</h1>
+    <form>
+      <label for="nome">Nome do Aluno:</label>
+      <input type="text" id="nome" required>
+      <label for="turma">Turma:</label>
+      <input type="text" id="turma" required>
+      <label for="cartinha">Texto da Cartinha:</label>
+      <textarea id="cartinha" rows="6" required></textarea>
+      <button type="submit">Cadastrar Cartinha</button>
+    </form>
+  </div>
+  <script>
+    document.querySelector('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = JSON.stringify({
+        nome: document.getElementById('nome').value,
+        turma: document.getElementById('turma').value,
+        cartinha: document.getElementById('cartinha').value
+      });
+      // A URL da API na Vercel será /api/server
+      const response = await fetch('/api/server', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
+      if (response.ok) {
+        alert('Cartinha cadastrada com sucesso!');
+        e.target.reset();
+      } else {
+        alert('Erro ao cadastrar a cartinha.');
+      }
+    });
+  </script>
+</body>
+</html>

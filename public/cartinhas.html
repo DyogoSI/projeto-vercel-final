@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartinhas para Apadrinhar</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>🎄 Projeto Cartinhas de Natal 🎄</header>
+  <nav>
+    <a href="index.html">Sobre</a>
+    <a href="cadastro.html">Cadastro (Admin)</a>
+    <a href="cartinhas.html">Ver Cartinhas</a>
+  </nav>
+  <div class="container">
+    <h1>Todas as Cartinhas</h1>
+    <div id="lista-cartinhas"></div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const container = document.getElementById('lista-cartinhas');
+      try {
+        const response = await fetch('/api/server'); // GET para /api/server
+        const cartinhas = await response.json();
+        if (cartinhas.length === 0) {
+          container.innerHTML = '<p>Nenhuma cartinha foi cadastrada ainda.</p>';
+          return;
+        }
+        cartinhas.forEach(c => {
+          const div = document.createElement('div');
+          div.className = `cartinha ${c.apadrinhada ? 'apadrinhada' : ''}`;
+          div.innerHTML = `
+            <h3>${c.nome_aluno} - Turma ${c.turma}</h3>
+            <p><strong>Código:</strong> ALU${String(c.id).padStart(3, '0')}</p>
+            <button ${c.apadrinhada ? 'disabled' : ''} onclick="apadrinhar(${c.id})">
+              ${c.apadrinhada ? '🎁 Apadrinhada' : '🎁 Apadrinhar'}
+            </button>
+          `;
+          container.appendChild(div);
+        });
+      } catch (error) {
+        container.innerHTML = '<p>Erro ao carregar as cartinhas. Tente recarregar a página.</p>';
+      }
+    });
+    function apadrinhar(id) {
+      localStorage.setItem('cartinhaId', id);
+      window.location.href = 'apadrinhar.html';
+    }
+  </script>
+</body>
+</html>
