@@ -9,9 +9,10 @@
 <body>
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
-    <a href="index.html">Sobre</a>
+    <a href="index.html">Sobre o Projeto</a>
     <a href="cadastro.html">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
+    <a href="admin.html">Área do Admin</a>
   </nav>
   <div class="container">
     <h1>Todas as Cartinhas</h1>
@@ -21,7 +22,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const container = document.getElementById('lista-cartinhas');
       try {
-        const response = await fetch('/api/server'); // GET para /api/server
+        const response = await fetch('/api/server');
         const cartinhas = await response.json();
         if (cartinhas.length === 0) {
           container.innerHTML = '<p>Nenhuma cartinha foi cadastrada ainda.</p>';
@@ -40,7 +41,7 @@
           container.appendChild(div);
         });
       } catch (error) {
-        container.innerHTML = '<p>Erro ao carregar as cartinhas. Tente recarregar a página.</p>';
+        container.innerHTML = '<p>Erro ao carregar as cartinhas.</p>';
       }
     });
     function apadrinhar(id) {

@@ -9,9 +9,10 @@
 <body>
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
-    <a href="index.html">Sobre</a>
+    <a href="index.html">Sobre o Projeto</a>
     <a href="cadastro.html">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
+    <a href="admin.html">Área do Admin</a>
   </nav>
   <div class="container">
     <h1>Cadastro de Cartinha</h1>
@@ -22,22 +23,17 @@
       <input type="text" id="turma" required>
       <label for="cartinha">Texto da Cartinha:</label>
       <textarea id="cartinha" rows="6" required></textarea>
-      
       <hr>
-      
       <label for="username">Usuário:</label>
       <input type="text" id="username" required>
       <label for="password">Senha:</label>
       <input type="password" id="password" required>
-      
       <button type="submit">Cadastrar Cartinha</button>
     </form>
   </div>
   <script>
     document.querySelector('form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      // Agora também pegamos os valores de usuário e senha
       const body = JSON.stringify({
         nome: document.getElementById('nome').value,
         turma: document.getElementById('turma').value,
@@ -45,16 +41,14 @@
         username: document.getElementById('username').value,
         password: document.getElementById('password').value
       });
-      
       const response = await fetch('/api/server', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body
       });
-      
       if (response.ok) {
         alert('Cartinha cadastrada com sucesso!');
-        e.target.reset(); // Limpa todos os campos do formulário
+        e.target.reset();
       } else if (response.status === 401) {
         alert('Usuário ou senha inválidos.');
       } else {

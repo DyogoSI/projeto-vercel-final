@@ -2,15 +2,17 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apadrinhar Cartinha</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
-    <a href="index.html">Sobre</a>
-    <a href="admin.html">Área do Admin</a>
+    <a href="index.html">Sobre o Projeto</a>
+    <a href="cadastro.html">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
+    <a href="admin.html">Área do Admin</a>
   </nav>
   <div class="container">
     <h1>Apadrinhar Cartinha</h1>
@@ -40,26 +42,21 @@
       const cartinha = await response.json();
       detalheDiv.innerHTML = `<h3>${cartinha.nome_aluno} - Turma ${cartinha.turma}</h3><div class="texto-cartinha"><p>${cartinha.texto.replace(/\n/g, '<br>')}</p></div>`;
     });
-
     document.querySelector('form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const cartinhaId = localStorage.getItem('cartinhaId');
-      
-      // Monta o corpo da requisição com os dados do padrinho
       const body = JSON.stringify({
         nome: document.getElementById('nome').value,
         telefone: document.getElementById('telefone').value,
         endereco: document.getElementById('endereco').value
       });
-
       const response = await fetch(`/api/server?id=${cartinhaId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body
       });
-      
       if (response.ok) {
-        alert('Obrigado por apadrinhar! Sua boa ação foi registrada.');
+        alert('Obrigado por apadrinhar!');
         localStorage.removeItem('cartinhaId');
         window.location.href = 'cartinhas.html';
       } else {
