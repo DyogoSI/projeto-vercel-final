@@ -2,14 +2,13 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cadastro de Cartinhas</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
-    <a href="index.html">Sobre o Projeto</a>
+    <a href="index.html">Sobre</a>
     <a href="cadastro.html">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
     <a href="admin.html">Área do Admin</a>
@@ -17,11 +16,14 @@
   <div class="container">
     <h1>Cadastro de Cartinha</h1>
     <form>
+      <label for="foto">Foto da Cartinha:</label>
+      <input type="file" id="foto" name="foto" accept="image/*" required>
+      <hr>
       <label for="nome">Nome do Aluno:</label>
       <input type="text" id="nome" required>
       <label for="turma">Turma:</label>
       <input type="text" id="turma" required>
-      <label for="cartinha">Texto da Cartinha:</label>
+      <label for="cartinha">Texto da Cartinha (Digitado):</label>
       <textarea id="cartinha" rows="6" required></textarea>
       <hr>
       <label for="username">Usuário:</label>
@@ -34,18 +36,34 @@
   <script>
     document.querySelector('form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const body = JSON.stringify({
+      const file = document.getElementById('foto').files[0];
+      if (!file) {
+        alert('Por favor, selecione uma foto da cartinha.');
+        return;
+      }
+
+      // Corpo da requisição agora é o arquivo
+      const body = file;
+
+      // Os outros dados do formulário são enviados via query string
+      const params = new URLSearchParams({
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
         nome: document.getElementById('nome').value,
         turma: document.getElementById('turma').value,
         cartinha: document.getElementById('cartinha').value,
-        username: document.getElementById('username').value,
-        password: document.getElementById('password').value
       });
-      const response = await fetch('/api/server', {
+
+      // A URL da API agora inclui os parâmetros
+      const response = await fetch(`/api/server?${params.toString()}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': file.type,
+          'x-vercel-filename': file.name // Header especial para Vercel Blob
+        },
         body
       });
+      
       if (response.ok) {
         alert('Cartinha cadastrada com sucesso!');
         e.target.reset();
