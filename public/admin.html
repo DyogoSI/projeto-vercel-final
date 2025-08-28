@@ -5,15 +5,83 @@
   <title>Área do Admin</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .actions button { padding: 5px 10px; font-size: 0.8rem; }
-    .btn-delete { background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    .btn-delete:hover { background-color: #c82333; }
-    .status-apadrinhada { color: green; font-weight: bold; }
-    .status-disponivel { color: orange; font-weight: bold; }
-    .no-padrinho { color: #888; }
+    /* Estilos gerais para a página de admin */
+    .container {
+        max-width: 1200px; /* Aumenta a largura para a tabela caber melhor */
+    }
+
+    /* Estilização da tabela */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden; /* Garante que o border-radius funcione nas bordas da tabela */
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    thead th {
+        background-color: #c0392b; /* Vermelho escuro, como no header */
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    tbody tr:nth-of-type(even) {
+        background-color: #f8f8f8; /* Linhas alternadas com um cinza claro */
+    }
+
+    tbody tr:hover {
+        background-color: #f1f1f1; /* Efeito ao passar o mouse */
+    }
+    
+    /* Estilos para os botões e status */
+    .actions button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .actions button:hover {
+        transform: scale(1.05); /* Efeito de zoom no botão */
+    }
+    
+    .btn-delete {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #c0392b;
+    }
+
+    .status-apadrinhada {
+        color: #27ae60; /* Verde */
+        font-weight: bold;
+    }
+
+    .status-disponivel {
+        color: #f39c12; /* Laranja */
+        font-weight: bold;
+    }
+    .no-padrinho {
+        color: #888;
+    }
+    
+    /* Responsividade para a tabela */
+    .admin-table-wrapper {
+      overflow-x: auto;
+    }
   </style>
 </head>
 <body>
@@ -40,7 +108,7 @@
 
     <div id="data-section" style="display: none;">
       <p>Gerencie todas as cartinhas cadastradas e veja os detalhes dos padrinhos.</p>
-      <div id="lista-cartinhas-admin"></div>
+      <div id="lista-cartinhas-admin" class="admin-table-wrapper"></div>
     </div>
   </div>
 
@@ -79,13 +147,15 @@
         return;
       }
       
-      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Status</th><th>Padrinho</th><th>Ações</th></tr></thead><tbody>';
+      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Status</th><th>Padrinho</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead><tbody>';
       
       data.forEach(item => {
         const statusClass = item.apadrinhada ? 'status-apadrinhada' : 'status-disponivel';
         const statusText = item.apadrinhada ? 'Apadrinhada' : 'Disponível';
         
         const nomePadrinho = item.nome_padrinho || '<span class="no-padrinho">---</span>';
+        const telPadrinho = item.telefone_padrinho || '<span class="no-padrinho">---</span>';
+        const endPadrinho = item.endereco_entrega || '<span class="no-padrinho">---</span>';
 
         tableHTML += `
           <tr id="cartinha-${item.id}">
@@ -93,6 +163,8 @@
             <td>${item.turma}</td>
             <td class="${statusClass}">${statusText}</td>
             <td>${nomePadrinho}</td>
+            <td>${telPadrinho}</td>
+            <td>${endPadrinho}</td>
             <td class="actions">
               <button class="btn-delete" onclick="excluirCartinha(${item.id})">Excluir</button>
             </td>
