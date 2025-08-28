@@ -28,7 +28,6 @@ export default async function handler(req, res) {
   // --- LÓGICA DE GET (Listar) ---
   if (req.method === 'GET') {
     try {
-      // Admin vendo os padrinhos
       if (admin === 'true') {
         const username = getCaseInsensitiveHeader(req.headers, 'username');
         const password = getCaseInsensitiveHeader(req.headers, 'password');
@@ -36,23 +35,21 @@ export default async function handler(req, res) {
           return res.status(401).send("Acesso não autorizado.");
         }
         const { rows } = await pool.query(`
-          SELECT c.nome_aluno, c.turma, p.nome_padrinho, p.telefone_padrinho, p.endereco_entrega
-          FROM cartinhas c JOIN padrinhos p ON c.id = p.cartinha_id
-          WHERE c.apadrinhada = TRUE ORDER BY c.id;
+          SELECT c.id, c.nome_aluno, c.turma, c.texto, c.apadrinhada, p.nome_padrinho, p.telefone_padrinho, p.endereco_entrega
+          FROM cartinhas c LEFT JOIN padrinhos p ON c.id = p.cartinha_id
+          ORDER BY c.id;
         `);
         return res.status(200).json(rows);
       }
-      // Listar UMA cartinha
       if (id) {
         const { rows } = await pool.query("SELECT nome_aluno, turma, texto, imagem_url FROM cartinhas WHERE id = $1", [id]);
         return res.status(200).json(rows[0]);
       }
-      // Listar TODAS as cartinhas
       const { rows } = await pool.query("SELECT id, nome_aluno, turma, apadrinhada, imagem_url FROM cartinhas ORDER BY id");
       return res.status(200).json(rows);
     } catch (error) {
       console.error('Erro no GET:', error);
-      return res.status(500).send("Erro no servidor.");
+      return res.status(500).send("Erro interno no servidor.");
     }
   }
 
