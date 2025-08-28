@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   try {
     // --- LÓGICA DE GET (Listar cartinhas) ---
     if (req.method === 'GET') {
-      // Admin vendo TODAS as cartinhas (LÓGICA CORRIGIDA)
+      // Admin vendo o painel completo (LÓGICA CORRIGIDA)
       if (req.query.admin === 'true') {
         const username = getCaseInsensitiveHeader(req.headers, 'username');
         const password = getCaseInsensitiveHeader(req.headers, 'password');
@@ -32,11 +32,17 @@ export default async function handler(req, res) {
           return res.status(401).send("Acesso não autorizado.");
         }
 
-        // Busca todas as cartinhas, apadrinhadas ou não
+        // Busca todas as cartinhas e junta os dados dos padrinhos quando houver
         const { rows } = await pool.query(`
-            SELECT id, nome_aluno, turma, texto, apadrinhada 
-            FROM cartinhas 
-            ORDER BY id;
+            SELECT 
+                c.id, c.nome_aluno, c.turma, c.texto, c.apadrinhada,
+                p.nome_padrinho, p.telefone_padrinho, p.endereco_entrega
+            FROM 
+                cartinhas c
+            LEFT JOIN 
+                padrinhos p ON c.id = p.cartinha_id
+            ORDER BY 
+                c.id;
         `);
         return res.status(200).json(rows);
       }
@@ -62,7 +68,7 @@ export default async function handler(req, res) {
         return res.status(401).send("Usuário ou senha inválidos.");
       }
 
-      // Editar cartinha (LÓGICA CORRIGIDA)
+      // Editar cartinha
       if (action === 'edit' && req.query.id) {
         const { nome, turma, texto } = req.body;
         await pool.query(
@@ -74,7 +80,7 @@ export default async function handler(req, res) {
 
       // Cadastrar nova cartinha com upload
       const filename = getCaseInsensitiveHeader(req.headers, 'x-vercel-filename');
-      if (!filename) { // Se não houver upload, é um POST inválido
+      if (!filename) {
         return res.status(400).send("Nenhum arquivo enviado para cadastro.");
       }
       const { nome, turma, cartinha } = req.query;
