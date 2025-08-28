@@ -54,7 +54,6 @@
       const user = document.getElementById('admin-user').value;
       const pass = document.getElementById('admin-pass').value;
       adminCredentials = { user, pass }; 
-
       fetchAndDisplayData();
     });
 
@@ -89,7 +88,6 @@
         const statusText = item.apadrinhada ? 'Apadrinhada' : 'Disponível';
         const itemData = JSON.stringify({ id: item.id, nome: item.nome_aluno, turma: item.turma, texto: item.texto }).replace(/"/g, '&quot;');
         
-        // Exibe os dados do padrinho ou "---" se não houver
         const nomePadrinho = item.nome_padrinho || '<span class="no-padrinho">---</span>';
         const telPadrinho = item.telefone_padrinho || '<span class="no-padrinho">---</span>';
         const endPadrinho = item.endereco_entrega || '<span class="no-padrinho">---</span>';
@@ -109,7 +107,6 @@
           </tr>
         `;
       });
-
       tableHTML += '</tbody></table>';
       container.innerHTML = tableHTML;
     }
@@ -123,17 +120,21 @@
 
       const novoTexto = prompt("Editar texto da cartinha:", item.texto);
       if (novoTexto === null) return;
+      
+      // ***** A CORREÇÃO ESTÁ AQUI *****
+      // Enviando todos os dados pela URL (query parameters)
+      const params = new URLSearchParams({
+        action: 'edit',
+        id: item.id,
+        nome: novoNome,
+        turma: novaTurma,
+        texto: novoTexto,
+        username: adminCredentials.user,
+        password: adminCredentials.pass
+      });
 
-      const response = await fetch(`/api/server?action=edit&id=${item.id}`, {
+      const response = await fetch(`/api/server?${params.toString()}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: novoNome,
-          turma: novaTurma,
-          texto: novoTexto,
-          username: adminCredentials.user,
-          password: adminCredentials.pass
-        })
       });
 
       if (response.ok) {
@@ -145,7 +146,7 @@
     }
 
     async function excluirCartinha(id) {
-      if (!confirm('Tem certeza que deseja excluir esta cartinha? Se ela já foi apadrinhada, os dados do padrinho também serão removidos.')) {
+      if (!confirm('Tem certeza que deseja excluir esta cartinha?')) {
         return;
       }
 
