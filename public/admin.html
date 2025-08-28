@@ -15,7 +15,6 @@
     .btn-delete:hover { background-color: #c82333; }
     .status-apadrinhada { color: green; font-weight: bold; }
     .status-disponivel { color: orange; font-weight: bold; }
-    .no-padrinho { color: #888; }
   </style>
 </head>
 <body>
@@ -41,7 +40,7 @@
     </div>
 
     <div id="data-section" style="display: none;">
-      <p>Gerencie todas as cartinhas cadastradas e veja os detalhes dos padrinhos.</p>
+      <p>Aqui você pode editar ou excluir o cadastro de qualquer cartinha.</p>
       <div id="lista-cartinhas-admin"></div>
     </div>
   </div>
@@ -62,7 +61,10 @@
       try {
         const response = await fetch('/api/server?admin=true', {
           method: 'GET',
-          headers: { 'username': adminCredentials.user, 'password': adminCredentials.pass }
+          headers: {
+            'username': adminCredentials.user,
+            'password': adminCredentials.pass
+          }
         });
         if (!response.ok) throw new Error('Usuário ou senha inválidos!');
         
@@ -82,26 +84,19 @@
         return;
       }
       
-      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Status</th><th>Padrinho</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead><tbody>';
+      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
       
       data.forEach(item => {
         const statusClass = item.apadrinhada ? 'status-apadrinhada' : 'status-disponivel';
         const statusText = item.apadrinhada ? 'Apadrinhada' : 'Disponível';
+        // Usando JSON.stringify para passar os dados de forma segura para a função onclick
         const itemData = JSON.stringify({ id: item.id, nome: item.nome_aluno, turma: item.turma, texto: item.texto }).replace(/"/g, '&quot;');
         
-        // Exibe os dados do padrinho ou "---" se não houver
-        const nomePadrinho = item.nome_padrinho || '<span class="no-padrinho">---</span>';
-        const telPadrinho = item.telefone_padrinho || '<span class="no-padrinho">---</span>';
-        const endPadrinho = item.endereco_entrega || '<span class="no-padrinho">---</span>';
-
         tableHTML += `
           <tr id="cartinha-${item.id}">
             <td>${item.nome_aluno}</td>
             <td>${item.turma}</td>
             <td class="${statusClass}">${statusText}</td>
-            <td>${nomePadrinho}</td>
-            <td>${telPadrinho}</td>
-            <td>${endPadrinho}</td>
             <td class="actions">
               <button class="btn-edit" onclick='editarCartinha(${itemData})'>Editar</button>
               <button class="btn-delete" onclick="excluirCartinha(${item.id})">Excluir</button>
