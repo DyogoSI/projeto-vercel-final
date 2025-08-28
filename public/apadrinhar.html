@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apadrinhar Cartinha</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
@@ -12,18 +11,16 @@
 <body>
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
-    <a href="index.html">Sobre o Projeto</a>
-    <a href="cadastro.html">Cadastro (Admin)</a>
-    <a href="cartinhas.html">Ver Cartinhas</a>
+    <a href="index.html">Sobre</a>
     <a href="admin.html">Área do Admin</a>
+    <a href="cartinhas.html">Ver Cartinhas</a>
   </nav>
   <div class="container">
     <h1>Apadrinhar Cartinha</h1>
     <div id="detalhe-cartinha">Carregando...</div>
     <hr>
     <h2>Preencha seus dados para apadrinhar</h2>
-    
-    <form>
+    <form id="apadrinhar-form">
       <label for="nome">Seu Nome:</label>
       <input type="text" id="nome" required>
       <label for="telefone">Telefone (com DDD):</label>
@@ -33,50 +30,47 @@
       <button type="submit">Confirmar Apadrinhamento</button>
     </form>
   </div>
-
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const cartinhaId = localStorage.getItem('cartinhaId');
       const detalheDiv = document.getElementById('detalhe-cartinha');
-
       if (!cartinhaId) {
-        detalheDiv.innerHTML = '<h2>Erro: Nenhuma cartinha selecionada. Volte para a lista.</h2>';
-        // Remove a linha que escondia o formulário
+        detalheDiv.innerHTML = '<h2>Erro: Nenhuma cartinha selecionada.</h2>';
+        document.getElementById('apadrinhar-form').style.display = 'none';
         return;
       }
-      
       try {
         const response = await fetch(`/api/server?id=${cartinhaId}`);
+        if (!response.ok) {
+            throw new Error(`Erro na rede: ${response.statusText}`);
+        }
         const cartinha = await response.json();
-
         let htmlConteudo = `<h3>${cartinha.nome_aluno} - Turma ${cartinha.turma}</h3>`;
         if (cartinha.imagem_url) {
           htmlConteudo += `<img src="${cartinha.imagem_url}" alt="Foto da cartinha" class="imagem-cartinha">`;
+        } else {
+          htmlConteudo += '<p>Não foi encontrada uma imagem para esta cartinha.</p>';
         }
-        htmlConteudo += `<div class="texto-cartinha"><p>${cartinha.texto.replace(/\n/g, '<br>')}</p></div>`;
-        
         detalheDiv.innerHTML = htmlConteudo;
       } catch (error) {
-        detalheDiv.innerHTML = '<h2>Erro ao carregar detalhes da cartinha.</h2>';
+        console.error('Erro ao buscar detalhes:', error);
+        detalheDiv.innerHTML = '<h2>Não foi possível carregar os detalhes da cartinha. Tente novamente.</h2>';
       }
     });
 
-    document.querySelector('form').addEventListener('submit', async (e) => {
+    document.getElementById('apadrinhar-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const cartinhaId = localStorage.getItem('cartinhaId');
-      
       const body = JSON.stringify({
         nome: document.getElementById('nome').value,
         telefone: document.getElementById('telefone').value,
         endereco: document.getElementById('endereco').value
       });
-
       const response = await fetch(`/api/server?id=${cartinhaId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body
       });
-      
       if (response.ok) {
         alert('Obrigado por apadrinhar!');
         localStorage.removeItem('cartinhaId');
