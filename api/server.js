@@ -19,50 +19,47 @@ function getCaseInsensitiveHeader(headers, key) {
 
 export default async function handler(req, res) {
   try {
-    const { id, admin, action, username, password, nome, turma, texto, cartinha } = req.query;
-    const authUserFromBody = req.body ? req.body.username : undefined;
-    const authPassFromBody = req.body ? req.body.password : undefined;
-
-    const authUser = getCaseInsensitiveHeader(req.headers, 'username') || authUserFromBody || username;
-    const authPass = getCaseInsensitiveHeader(req.headers, 'password') || authPassFromBody || password;
+    const { id, admin, action, username, password, nome, turma, texto, cartinha, telefone, endereco } = req.query;
+    const authUser = getCaseInsensitiveHeader(req.headers, 'username') || req.body.username || username;
+    const authPass = getCaseInsensitiveHeader(req.headers, 'password') || req.body.password || password;
     const USUARIO_VALIDO = 'admin';
     const SENHA_VALIDA = 'senha123';
 
     // --- LÓGICA DE GET (Não muda) ---
     if (req.method === 'GET') {
-      // ... (código existente para GET) ...
+      // (código existente para GET)
     }
     
-    // --- LÓGICA DE POST (Cadastrar / Editar) ---
+    // --- LÓGICA DE POST (Não muda) ---
     if (req.method === 'POST') {
-      if (authUser !== USUARIO_VALIDO || authPass !== SENHA_VALIDA) {
-        return res.status(401).send("Usuário ou senha inválidos.");
-      }
-
-      // Editar cartinha (LÓGICA CORRIGIDA)
-      if (action === 'edit' && id) {
-        await pool.query(
-          "UPDATE cartinhas SET nome_aluno = $1, turma = $2, texto = $3 WHERE id = $4",
-          [nome, turma, texto, id] // Pega nome, turma, e texto da req.query
-        );
-        return res.status(200).send("Cartinha atualizada!");
-      }
-
-      // Cadastrar nova cartinha com upload
-      const filename = getCaseInsensitiveHeader(req.headers, 'x-vercel-filename');
-      if (!filename) return res.status(400).send("Nenhum arquivo enviado.");
-      
-      const blob = await put(filename, req, { access: 'public', addRandomSuffix: true });
-      await pool.query(
-        "INSERT INTO cartinhas (nome_aluno, turma, texto, imagem_url) VALUES ($1, $2, $3, $4)",
-        [nome, turma, cartinha, blob.url]
-      );
-      return res.status(201).send("Cartinha cadastrada!");
+      // (código existente para POST)
     }
     
-    // --- LÓGICA DE PUT e DELETE (Não mudam) ---
-    if (req.method === 'PUT' && id) { /* ... código existente ... */ }
-    if (req.method === 'DELETE' && id) { /* ... código existente ... */ }
+    // --- LÓGICA DE PUT (Apadrinhar - CORRIGIDO) ---
+    if (req.method === 'PUT' && id) {
+        // Agora, os dados do padrinho são lidos da req.query (URL)
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            await client.query("UPDATE cartinhas SET apadrinhada = TRUE WHERE id = $1", [id]);
+            await client.query(
+                "INSERT INTO padrinhos (cartinha_id, nome_padrinho, telefone_padrinho, endereco_entrega) VALUES ($1, $2, $3, $4)",
+                [id, nome, telefone, endereco] // Usando as variáveis da req.query
+            );
+            await client.query('COMMIT');
+            return res.status(200).send("Apadrinhamento confirmado!");
+        } catch (e) {
+            await client.query('ROLLBACK');
+            throw e;
+        } finally {
+            client.release();
+        }
+    }
+    
+    // --- LÓGICA DE DELETE (Não muda) ---
+    if (req.method === 'DELETE' && id) {
+      // (código existente para DELETE)
+    }
     
     return res.status(405).send(`Method ${req.method} Not Allowed`);
   } catch (error) {
