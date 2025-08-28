@@ -7,6 +7,7 @@ const pool = new Pool({
 });
 
 function getCaseInsensitiveHeader(headers, key) {
+  if (!headers) return undefined;
   const lowerKey = key.toLowerCase();
   for (const headerKey in headers) {
     if (headerKey.toLowerCase() === lowerKey) {
@@ -18,16 +19,16 @@ function getCaseInsensitiveHeader(headers, key) {
 
 export default async function handler(req, res) {
   try {
-    const { id, admin, action, username, password, nome, turma, texto, cartinha } = req.query;
-    const authUser = getCaseInsensitiveHeader(req.headers, 'username') || req.body.username || username;
-    const authPass = getCaseInsensitiveHeader(req.headers, 'password') || req.body.password || password;
+    const { id, admin, action } = req.query;
     const USUARIO_VALIDO = 'admin';
     const SENHA_VALIDA = 'administrador30';
 
     // --- LÓGICA DE GET (Listar) ---
     if (req.method === 'GET') {
       if (admin === 'true') {
-        if (authUser !== USUARIO_VALIDO || authPass !== SENHA_VALIDA) {
+        const username = getCaseInsensitiveHeader(req.headers, 'username');
+        const password = getCaseInsensitiveHeader(req.headers, 'password');
+        if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
           return res.status(401).send("Acesso não autorizado.");
         }
         const { rows } = await pool.query(`
@@ -47,48 +48,47 @@ export default async function handler(req, res) {
     
     // --- LÓGICA DE POST (Cadastrar / Editar) ---
     if (req.method === 'POST') {
+      const authUser = req.query.username || req.body.username;
+      const authPass = req.query.password || req.body.password;
       if (authUser !== USUARIO_VALIDO || authPass !== SENHA_VALIDA) {
         return res.status(401).send("Usuário ou senha inválidos.");
       }
       if (action === 'edit' && id) {
-        const { nome: nomeBody, turma: turmaBody, texto: textoBody } = req.body;
-        await pool.query(
-          "UPDATE cartinhas SET nome_aluno = $1, turma = $2, texto = $3 WHERE id = $4",
-          [nomeBody, turmaBody, textoBody, id]
-        );
+        const { nome, turma, texto } = req.body;
+        await pool.query("UPDATE cartinhas SET nome_aluno = $1, turma = $2, texto = $3 WHERE id = $4", [nome, turma, texto, id]);
         return res.status(200).send("Cartinha atualizada!");
       }
       const filename = getCaseInsensitiveHeader(req.headers, 'x-vercel-filename');
       if (!filename) return res.status(400).send("Nenhum arquivo enviado.");
+      const { nome, turma, cartinha } = req.query;
       const blob = await put(filename, req, { access: 'public', addRandomSuffix: true });
-      await pool.query(
-        "INSERT INTO cartinhas (nome_aluno, turma, texto, imagem_url) VALUES ($1, $2, $3, $4)",
-        [nome, turma, cartinha, blob.url]
-      );
+      await pool.query("INSERT INTO cartinhas (nome_aluno, turma, texto, imagem_url) VALUES ($1, $2, $3, $4)", [nome, turma, cartinha, blob.url]);
       return res.status(201).send("Cartinha cadastrada!");
     }
     
     // --- LÓGICA DE PUT (Apadrinhar) ---
     if (req.method === 'PUT' && id) {
-      const { nome: nomePadrinho, telefone, endereco } = req.body;
-      const client = await pool.connect();
-      try {
-        await client.query('BEGIN');
-        await client.query("UPDATE cartinhas SET apadrinhada = TRUE WHERE id = $1", [id]);
-        await client.query("INSERT INTO padrinhos (cartinha_id, nome_padrinho, telefone_padrinho, endereco_entrega) VALUES ($1, $2, $3, $4)", [id, nomePadrinho, telefone, endereco]);
-        await client.query('COMMIT');
-        return res.status(200).send("Apadrinhamento confirmado!");
-      } catch (e) {
-        await client.query('ROLLBACK');
-        throw e;
-      } finally {
-        client.release();
-      }
+        const { nome, telefone, endereco } = req.body;
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            await client.query("UPDATE cartinhas SET apadrinhada = TRUE WHERE id = $1", [id]);
+            await client.query("INSERT INTO padrinhos (cartinha_id, nome_padrinho, telefone_padrinho, endereco_entrega) VALUES ($1, $2, $3, $4)", [id, nome, telefone, endereco]);
+            await client.query('COMMIT');
+            return res.status(200).send("Apadrinhamento confirmado!");
+        } catch (e) {
+            await client.query('ROLLBACK');
+            throw e;
+        } finally {
+            client.release();
+        }
     }
     
     // --- LÓGICA DE DELETE (Excluir) ---
     if (req.method === 'DELETE' && id) {
-      if (authUser !== USUARIO_VALIDO || authPass !== SENHA_VALIDA) {
+      const username = getCaseInsensitiveHeader(req.headers, 'username');
+      const password = getCaseInsensitiveHeader(req.headers, 'password');
+      if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
         return res.status(401).send("Acesso não autorizado.");
       }
       await pool.query("DELETE FROM cartinhas WHERE id = $1", [id]);
