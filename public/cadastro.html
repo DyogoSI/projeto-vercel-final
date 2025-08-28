@@ -42,10 +42,6 @@
         return;
       }
 
-      // Corpo da requisição agora é o arquivo
-      const body = file;
-
-      // Os outros dados do formulário são enviados via query string
       const params = new URLSearchParams({
         username: document.getElementById('username').value,
         password: document.getElementById('password').value,
@@ -54,14 +50,13 @@
         cartinha: document.getElementById('cartinha').value,
       });
 
-      // A URL da API agora inclui os parâmetros
       const response = await fetch(`/api/server?${params.toString()}`, {
         method: 'POST',
         headers: { 
           'Content-Type': file.type,
-          'x-vercel-filename': file.name // Header especial para Vercel Blob
+          'x-vercel-filename': file.name
         },
-        body
+        body: file
       });
       
       if (response.ok) {
@@ -70,7 +65,8 @@
       } else if (response.status === 401) {
         alert('Usuário ou senha inválidos.');
       } else {
-        alert('Erro ao cadastrar a cartinha.');
+        const errorText = await response.text();
+        alert(`Erro ao cadastrar a cartinha: ${errorText}`);
       }
     });
   </script>
