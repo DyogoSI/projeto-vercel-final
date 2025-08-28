@@ -9,10 +9,10 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
-    .actions button { padding: 5px 10px; margin-right: 5px; font-size: 0.8rem; cursor: pointer; }
-    .btn-edit { background-color: #007bff; color: white; border: none; }
+    .actions button { padding: 5px 10px; margin-right: 5px; font-size: 0.8rem; }
+    .btn-edit { background-color: #007bff; }
     .btn-edit:hover { background-color: #0056b3; }
-    .btn-delete { background-color: #dc3545; color: white; border: none; }
+    .btn-delete { background-color: #dc3545; }
     .btn-delete:hover { background-color: #c82333; }
   </style>
 </head>
@@ -46,13 +46,13 @@
   </div>
 
   <script>
-    let adminCredentials = {}; // Salva as credenciais após o login
+    let adminCredentials = {}; 
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-user').value;
       const pass = document.getElementById('admin-pass').value;
-      adminCredentials = { user, pass }; // Salva as credenciais
+      adminCredentials = { user, pass }; 
 
       fetchAndDisplayData();
     });
@@ -95,7 +95,7 @@
             <td>${item.telefone_padrinho}</td>
             <td>${item.endereco_entrega}</td>
             <td class="actions">
-              <button class="btn-edit" onclick="editarCartinha(${item.id}, '${item.nome_aluno.replace(/'/g, "\\'")}', '${item.turma.replace(/'/g, "\\'")}')">Editar</button>
+              <button class="btn-edit" onclick="editarCartinha(${item.id}, '${item.nome_aluno}', '${item.turma}')">Editar</button>
               <button class="btn-delete" onclick="excluirCartinha(${item.id})">Excluir</button>
             </td>
           </tr>
@@ -110,7 +110,7 @@
       const novoNome = prompt("Editar nome do aluno:", nomeAtual);
       const novaTurma = prompt("Editar turma do aluno:", turmaAtual);
 
-      if (novoNome === null || novaTurma === null) return;
+      if (novoNome === null || novaTurma === null) return; 
 
       const response = await fetch(`/api/server?action=edit&id=${id}`, {
         method: 'POST',
@@ -125,14 +125,14 @@
 
       if (response.ok) {
         alert('Cartinha atualizada com sucesso!');
-        fetchAndDisplayData();
+        fetchAndDisplayData(); 
       } else {
         alert('Erro ao atualizar a cartinha.');
       }
     }
 
     async function excluirCartinha(id) {
-      if (!confirm('Tem certeza que deseja excluir esta cartinha? Se houver um padrinho, os dados dele também serão apagados.')) {
+      if (!confirm('Tem certeza que deseja excluir esta cartinha?')) {
         return;
       }
 
