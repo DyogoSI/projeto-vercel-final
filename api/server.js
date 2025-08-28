@@ -1,10 +1,13 @@
 import { put } from '@vercel/blob';
 import { Pool } from 'pg';
+import { json } from 'express';
 
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
   ssl: { rejectUnauthorized: false }
 });
+
+const jsonParser = json();
 
 function getCaseInsensitiveHeader(headers, key) {
   if (!headers) return undefined;
@@ -18,13 +21,13 @@ function getCaseInsensitiveHeader(headers, key) {
 }
 
 export default async function handler(req, res) {
-  try {
-    const { id, admin, action } = req.query;
-    const USUARIO_VALIDO = 'admin';
-    const SENHA_VALIDA = 'senha123';
+  const { id, admin, action } = req.query;
+  const USUARIO_VALIDO = 'admin';
+  const SENHA_VALIDA = 'senha123';
 
-    // --- LÓGICA DE GET (Listar) ---
-    if (req.method === 'GET') {
+  // --- LÓGICA DE GET (Listar) ---
+  if (req.method === 'GET') {
+    try {
       if (admin === 'true') {
         const username = getCaseInsensitiveHeader(req.headers, 'username');
         const password = getCaseInsensitiveHeader(req.headers, 'password');
@@ -33,8 +36,7 @@ export default async function handler(req, res) {
         }
         const { rows } = await pool.query(`
           SELECT c.id, c.nome_aluno, c.turma, c.texto, c.apadrinhada, p.nome_padrinho, p.telefone_padrinho, p.endereco_entrega
-          FROM cartinhas c LEFT JOIN padrinhos p ON c.id = p.cartinha_id
-          ORDER BY c.id;
+          FROM cartinhas c LEFT JOIN padrinhos p ON c.id = p.cartinha_id ORDER BY c.id;
         `);
         return res.status(200).json(rows);
       }
@@ -44,33 +46,16 @@ export default async function handler(req, res) {
       }
       const { rows } = await pool.query("SELECT id, nome_aluno, turma, apadrinhada, imagem_url FROM cartinhas ORDER BY id");
       return res.status(200).json(rows);
+    } catch (error) {
+      console.error('Erro no GET:', error);
+      return res.status(500).send("Erro interno no servidor.");
     }
-    
-    // --- LÓGICA DE POST (Cadastrar / Editar) ---
-    if (req.method === 'POST') {
-      const authUser = req.query.username || (req.body ? req.body.username : undefined);
-      const authPass = req.query.password || (req.body ? req.body.password : undefined);
-      if (authUser !== USUARIO_VALIDO || authPass !== SENHA_VALIDA) {
-        return res.status(401).send("Usuário ou senha inválidos.");
-      }
-      if (action === 'edit' && id) {
-        const { nome, turma, texto } = req.body;
-        await pool.query("UPDATE cartinhas SET nome_aluno = $1, turma = $2, texto = $3 WHERE id = $4", [nome, turma, texto, id]);
-        return res.status(200).send("Cartinha atualizada!");
-      }
-      const filename = getCaseInsensitiveHeader(req.headers, 'x-vercel-filename');
-      if (!filename) return res.status(400).send("Nenhum arquivo enviado.");
-      const { nome, turma, cartinha } = req.query;
-      const blob = await put(filename, req, { access: 'public', addRandomSuffix: true });
-      await pool.query(
-        "INSERT INTO cartinhas (nome_aluno, turma, texto, imagem_url) VALUES ($1, $2, $3, $4)",
-        [nome, turma, cartinha, blob.url]
-      );
-      return res.status(201).send("Cartinha cadastrada!");
-    }
-    
-    // --- LÓGICA DE PUT (Apadrinhar) ---
-    if (req.method === 'PUT' && id) {
+  }
+
+  // --- LÓGICA DE PUT (Apadrinhar) ---
+  if (req.method === 'PUT' && id) {
+    jsonParser(req, res, async () => {
+      try {
         const { nome, telefone, endereco } = req.body;
         const client = await pool.connect();
         try {
@@ -85,10 +70,17 @@ export default async function handler(req, res) {
         } finally {
             client.release();
         }
-    }
-    
-    // --- LÓGICA DE DELETE (Excluir) ---
-    if (req.method === 'DELETE' && id) {
+      } catch (error) {
+        console.error('Erro no PUT:', error);
+        return res.status(500).send("Erro interno no servidor.");
+      }
+    });
+    return;
+  }
+  
+  // --- LÓGICA DE DELETE (Excluir) ---
+  if (req.method === 'DELETE' && id) {
+    try {
       const username = getCaseInsensitiveHeader(req.headers, 'username');
       const password = getCaseInsensitiveHeader(req.headers, 'password');
       if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
@@ -96,16 +88,57 @@ export default async function handler(req, res) {
       }
       await pool.query("DELETE FROM cartinhas WHERE id = $1", [id]);
       return res.status(200).send("Cartinha excluída!");
+    } catch (error) {
+      console.error('Erro no DELETE:', error);
+      return res.status(500).send("Erro interno no servidor.");
     }
-    
-    res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-    return res.status(405).send(`Method ${req.method} Not Allowed`);
-  } catch (error) {
-    console.error('Erro na API:', error);
-    return res.status(500).send("Erro interno no servidor.");
   }
+
+  // --- LÓGICA DE POST (Cadastrar / Editar) ---
+  if (req.method === 'POST') {
+    const authUser = req.query.username || (req.body ? req.body.username : undefined);
+    const authPass = req.query.password || (req.body ? req.body.password : undefined);
+    
+    // Rota de Edição (que usa JSON)
+    if (action === 'edit' && id) {
+      jsonParser(req, res, async () => {
+        try {
+          if (req.body.username !== USUARIO_VALIDO || req.body.password !== SENHA_VALIDA) {
+            return res.status(401).send("Usuário ou senha inválidos.");
+          }
+          const { nome, turma, texto } = req.body;
+          await pool.query("UPDATE cartinhas SET nome_aluno = $1, turma = $2, texto = $3 WHERE id = $4", [nome, turma, texto, id]);
+          return res.status(200).send("Cartinha atualizada!");
+        } catch (error) {
+          console.error('Erro no POST (edit):', error);
+          return res.status(500).send("Erro interno no servidor.");
+        }
+      });
+      return;
+    }
+
+    // Rota de Cadastro (que usa upload)
+    try {
+      if (req.query.username !== USUARIO_VALIDO || req.query.password !== SENHA_VALIDA) {
+        return res.status(401).send("Usuário ou senha inválidos.");
+      }
+      const filename = getCaseInsensitiveHeader(req.headers, 'x-vercel-filename');
+      if (!filename) return res.status(400).send("Nenhum arquivo enviado.");
+      const { nome, turma, cartinha } = req.query;
+      const blob = await put(filename, req, { access: 'public', addRandomSuffix: true });
+      await pool.query("INSERT INTO cartinhas (nome_aluno, turma, texto, imagem_url) VALUES ($1, $2, $3, $4)", [nome, turma, cartinha, blob.url]);
+      return res.status(201).send("Cartinha cadastrada!");
+    } catch (error) {
+      console.error('Erro no POST (upload):', error);
+      return res.status(500).send("Erro interno no servidor.");
+    }
+  }
+    
+  return res.status(405).send(`Method ${req.method} Not Allowed`);
 }
 
+// A configuração bodyParser: false só se aplica por padrão.
+// Nós vamos chamar o parser de JSON manualmente nas rotas que precisam.
 export const config = {
   api: {
     bodyParser: false,
