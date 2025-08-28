@@ -2,32 +2,41 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Área do Admin</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
-    .actions button { padding: 5px 10px; margin-right: 5px; font-size: 0.8rem; }
-    .btn-edit { background-color: #007bff; }
+    .actions button { padding: 5px 10px; margin-right: 5px; font-size: 0.8rem; cursor: pointer; }
+    .btn-edit { background-color: #007bff; color: white; border: none; }
     .btn-edit:hover { background-color: #0056b3; }
-    .btn-delete { background-color: #dc3545; }
+    .btn-delete { background-color: #dc3545; color: white; border: none; }
     .btn-delete:hover { background-color: #c82333; }
   </style>
 </head>
 <body>
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
-    <a href="index.html">Sobre</a>
-    <a href="admin.html">Área do Admin</a>
+    <a href="index.html">Sobre o Projeto</a>
+    <a href="cadastro.html">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
-    <a href="cadastro.html">Novo Cadastro</a>
+    <a href="admin.html">Área do Admin</a>
   </nav>
   <div class="container">
     <h1>Área do Administrador</h1>
     
     <div id="login-section">
-      </div>
+      <h2>Login</h2>
+      <form id="login-form">
+        <label for="admin-user">Usuário:</label>
+        <input type="text" id="admin-user" required>
+        <label for="admin-pass">Senha:</label>
+        <input type="password" id="admin-pass" required>
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
 
     <div id="data-section" style="display: none;">
       <h2>Cartinhas Apadrinhadas</h2>
@@ -37,7 +46,7 @@
   </div>
 
   <script>
-    let adminCredentials = {}; // Salvar as credenciais após o login
+    let adminCredentials = {}; // Salva as credenciais após o login
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -75,7 +84,6 @@
         return;
       }
       
-      // Adiciona a coluna "Ações"
       let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Padrinho</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead><tbody>';
       
       data.forEach(item => {
@@ -87,7 +95,7 @@
             <td>${item.telefone_padrinho}</td>
             <td>${item.endereco_entrega}</td>
             <td class="actions">
-              <button class="btn-edit" onclick="editarCartinha(${item.id}, '${item.nome_aluno}', '${item.turma}')">Editar</button>
+              <button class="btn-edit" onclick="editarCartinha(${item.id}, '${item.nome_aluno.replace(/'/g, "\\'")}', '${item.turma.replace(/'/g, "\\'")}')">Editar</button>
               <button class="btn-delete" onclick="excluirCartinha(${item.id})">Excluir</button>
             </td>
           </tr>
@@ -98,12 +106,11 @@
       container.innerHTML = tableHTML;
     }
 
-    // --- NOVAS FUNÇÕES ---
     async function editarCartinha(id, nomeAtual, turmaAtual) {
       const novoNome = prompt("Editar nome do aluno:", nomeAtual);
       const novaTurma = prompt("Editar turma do aluno:", turmaAtual);
 
-      if (novoNome === null || novaTurma === null) return; // Cancelou
+      if (novoNome === null || novaTurma === null) return;
 
       const response = await fetch(`/api/server?action=edit&id=${id}`, {
         method: 'POST',
@@ -118,14 +125,14 @@
 
       if (response.ok) {
         alert('Cartinha atualizada com sucesso!');
-        fetchAndDisplayData(); // Recarrega a lista
+        fetchAndDisplayData();
       } else {
         alert('Erro ao atualizar a cartinha.');
       }
     }
 
     async function excluirCartinha(id) {
-      if (!confirm('Tem certeza que deseja excluir esta cartinha? Esta ação não pode ser desfeita.')) {
+      if (!confirm('Tem certeza que deseja excluir esta cartinha? Se houver um padrinho, os dados dele também serão apagados.')) {
         return;
       }
 
@@ -139,7 +146,7 @@
 
       if (response.ok) {
         alert('Cartinha excluída com sucesso!');
-        fetchAndDisplayData(); // Recarrega a lista
+        fetchAndDisplayData();
       } else {
         alert('Erro ao excluir a cartinha.');
       }
