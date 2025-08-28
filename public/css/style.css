@@ -1,16 +1,135 @@
-body { margin: 0; font-family: sans-serif; background-color: #F9F9F9; color: #14532D; }
-header { background-color: #C1121F; color: white; padding: 20px; text-align: center; font-size: 2rem; }
-nav { background-color: #14532D; padding: 10px; display: flex; justify-content: center; gap: 20px; }
-nav a { color: white; text-decoration: none; font-weight: bold; }
-nav a:hover { color: #FFD700; }
-.container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-h1 { color: #C1121F; }
-form { display: flex; flex-direction: column; gap: 10px; }
-input, textarea { padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
-button { background-color: #C1121F; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-button:hover { background-color: #A50E1B; }
-.cartinha { border: 1px solid #ccc; border-radius: 8px; padding: 15px; margin-bottom: 15px; background-color: #FFF8F0; }
-.cartinha.apadrinhada { background-color: #e0e0e0; border-color: #999; }
-.cartinha.apadrinhada h3 { color: #555; }
-.cartinha.apadrinhada button { background-color: #777; cursor: not-allowed; }
-.texto-cartinha { margin-top: 15px; padding: 10px; background-color: #fff; border: 1px dashed #ddd; border-radius: 4px; white-space: pre-wrap; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.6;
+}
+
+header {
+  background-color: #c0392b; /* Vermelho Natal */
+  color: white;
+  padding: 1rem 0;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+nav {
+  background-color: #e74c3c; /* Vermelho um pouco mais claro */
+  color: white;
+  text-align: center;
+  padding: 0.8rem 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  padding: 0.8rem 1.5rem;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+nav a:hover {
+  background-color: #c0392b; /* Vermelho mais escuro no hover */
+}
+
+.container {
+  width: 80%;
+  margin: 20px auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+  color: #c0392b; /* Títulos em vermelho natal */
+  text-align: center;
+}
+
+form {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="password"],
+form input[type="tel"],
+form input[type="file"],
+form textarea {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form button {
+  background-color: #27ae60; /* Verde para botões de ação */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+form button:hover {
+  background-color: #219d55;
+}
+
+/* Estilo para a nova caixa do PIX */
+.pix-box {
+  background-color: #e0f7fa;
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+  text-align: center;
+}
+.pix-box h2 {
+  margin-top: 0;
+  color: #004d7a;
+}
+.pix-box p {
+  font-size: 1.1rem;
+  color: #333;
+}
+.pix-box .chave-pix {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #000;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+/* --- NOVO ESTILO PARA A IMAGEM DE FUNDO NA PÁGINA 'SOBRE O PROJETO' --- */
+.body-index { /* Classe para o body APENAS da index.html */
+  background-image: url('../img/imagem\ natal.jpg'); /* Caminho para sua imagem */
+  background-size: cover; /* Faz a imagem cobrir todo o fundo */
+  background-attachment: fixed; /* Mantém a imagem fixa ao rolar a página */
+  background-position: center center; /* Centraliza a imagem */
+  background-repeat: no-repeat; /* Evita que a imagem se repita */
+}
+
+/* Para garantir que o conteúdo do container ainda seja legível sobre o fundo */
+.body-index .container {
+  background-color: rgba(255, 255, 255, 0.9); /* Fundo branco com um pouco de transparência */
+  padding: 30px; /* Mais espaço interno */
+}
