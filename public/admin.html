@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Área do Admin</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
@@ -87,6 +86,8 @@
       let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Padrinho</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead><tbody>';
       
       data.forEach(item => {
+        // Usando JSON.stringify para passar os dados corretamente para a função onclick
+        const itemData = JSON.stringify({ id: item.id, nome: item.nome_aluno, turma: item.turma }).replace(/"/g, '&quot;');
         tableHTML += `
           <tr id="cartinha-${item.id}">
             <td>${item.nome_aluno}</td>
@@ -95,7 +96,7 @@
             <td>${item.telefone_padrinho}</td>
             <td>${item.endereco_entrega}</td>
             <td class="actions">
-              <button class="btn-edit" onclick="editarCartinha(${item.id}, '${item.nome_aluno}', '${item.turma}')">Editar</button>
+              <button class="btn-edit" onclick='editarCartinha(${itemData})'>Editar</button>
               <button class="btn-delete" onclick="excluirCartinha(${item.id})">Excluir</button>
             </td>
           </tr>
@@ -106,13 +107,13 @@
       container.innerHTML = tableHTML;
     }
 
-    async function editarCartinha(id, nomeAtual, turmaAtual) {
-      const novoNome = prompt("Editar nome do aluno:", nomeAtual);
-      const novaTurma = prompt("Editar turma do aluno:", turmaAtual);
+    async function editarCartinha(item) {
+      const novoNome = prompt("Editar nome do aluno:", item.nome);
+      const novaTurma = prompt("Editar turma do aluno:", item.turma);
 
       if (novoNome === null || novaTurma === null) return; 
 
-      const response = await fetch(`/api/server?action=edit&id=${id}`, {
+      const response = await fetch(`/api/server?action=edit&id=${item.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
