@@ -19,32 +19,33 @@ function getCaseInsensitiveHeader(headers, key) {
 
 export default async function handler(req, res) {
   try {
-    // --- LÓGICAS DE GET (Listar cartinhas) ---
+    // --- LÓGICA DE GET (Listar cartinhas) ---
     if (req.method === 'GET') {
-      // Admin vendo os padrinhos (COM A CORREÇÃO)
+      // Admin vendo TODAS as cartinhas (LÓGICA CORRIGIDA)
       if (req.query.admin === 'true') {
         const username = getCaseInsensitiveHeader(req.headers, 'username');
         const password = getCaseInsensitiveHeader(req.headers, 'password');
         const USUARIO_VALIDO = 'admin';
-        const SENHA_VALIDA = 'senha123';
+        const SENHA_VALIDA = 'administrador30';
 
         if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
           return res.status(401).send("Acesso não autorizado.");
         }
 
+        // Busca todas as cartinhas, apadrinhadas ou não
         const { rows } = await pool.query(`
-            SELECT c.id, c.nome_aluno, c.turma, p.nome_padrinho, p.telefone_padrinho, p.endereco_entrega
-            FROM cartinhas c JOIN padrinhos p ON c.id = p.cartinha_id
-            WHERE c.apadrinhada = TRUE ORDER BY c.id;
+            SELECT id, nome_aluno, turma, texto, apadrinhada 
+            FROM cartinhas 
+            ORDER BY id;
         `);
         return res.status(200).json(rows);
       }
-      // Listar UMA cartinha
+      // Listar UMA cartinha (público)
       if (req.query.id) {
         const { rows } = await pool.query("SELECT nome_aluno, turma, texto, imagem_url FROM cartinhas WHERE id = $1", [req.query.id]);
         return res.status(200).json(rows[0]);
       }
-      // Listar TODAS as cartinhas
+      // Listar TODAS as cartinhas (público)
       const { rows } = await pool.query("SELECT id, nome_aluno, turma, apadrinhada, imagem_url FROM cartinhas ORDER BY id");
       return res.status(200).json(rows);
     }
@@ -52,7 +53,6 @@ export default async function handler(req, res) {
     // --- LÓGICA DE POST (Cadastrar / Editar) ---
     if (req.method === 'POST') {
       const { action } = req.query;
-      // Para upload, os dados vêm da URL; para editar, vêm do corpo
       const authUser = req.query.username || req.body.username;
       const authPass = req.query.password || req.body.password;
       
@@ -62,15 +62,21 @@ export default async function handler(req, res) {
         return res.status(401).send("Usuário ou senha inválidos.");
       }
 
-      // Editar cartinha
+      // Editar cartinha (LÓGICA CORRIGIDA)
       if (action === 'edit' && req.query.id) {
-        const { nome, turma } = req.body;
-        await pool.query("UPDATE cartinhas SET nome_aluno = $1, turma = $2 WHERE id = $3", [nome, turma, req.query.id]);
+        const { nome, turma, texto } = req.body;
+        await pool.query(
+          "UPDATE cartinhas SET nome_aluno = $1, turma = $2, texto = $3 WHERE id = $4",
+          [nome, turma, texto, req.query.id]
+        );
         return res.status(200).send("Cartinha atualizada!");
       }
 
       // Cadastrar nova cartinha com upload
       const filename = getCaseInsensitiveHeader(req.headers, 'x-vercel-filename');
+      if (!filename) { // Se não houver upload, é um POST inválido
+        return res.status(400).send("Nenhum arquivo enviado para cadastro.");
+      }
       const { nome, turma, cartinha } = req.query;
       const blob = await put(filename, req, { access: 'public', addRandomSuffix: true });
       await pool.query(

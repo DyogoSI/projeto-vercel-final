@@ -13,21 +13,23 @@
     .btn-edit:hover { background-color: #0056b3; }
     .btn-delete { background-color: #dc3545; }
     .btn-delete:hover { background-color: #c82333; }
+    .status-apadrinhada { color: green; font-weight: bold; }
+    .status-disponivel { color: orange; font-weight: bold; }
   </style>
 </head>
 <body>
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
     <a href="index.html">Sobre o Projeto</a>
-    <a href="cadastro.html">Cadastro (Admin)</a>
+    <a href="cadastro.html">Novo Cadastro</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
     <a href="admin.html">Área do Admin</a>
   </nav>
   <div class="container">
-    <h1>Área do Administrador</h1>
+    <h1>Gerenciamento de Cartinhas</h1>
     
     <div id="login-section">
-      <h2>Login</h2>
+      <h2>Login de Administrador</h2>
       <form id="login-form">
         <label for="admin-user">Usuário:</label>
         <input type="text" id="admin-user" required>
@@ -38,9 +40,8 @@
     </div>
 
     <div id="data-section" style="display: none;">
-      <h2>Cartinhas Apadrinhadas</h2>
-      <p>Lista de crianças apadrinhadas e detalhes para a entrega do presente.</p>
-      <div id="lista-apadrinhados"></div>
+      <p>Aqui você pode editar ou excluir o cadastro de qualquer cartinha.</p>
+      <div id="lista-cartinhas-admin"></div>
     </div>
   </div>
 
@@ -77,24 +78,25 @@
     }
 
     function displayData(data) {
-      const container = document.getElementById('lista-apadrinhados');
+      const container = document.getElementById('lista-cartinhas-admin');
       if (data.length === 0) {
-        container.innerHTML = "<p>Nenhuma cartinha foi apadrinhada ainda.</p>";
+        container.innerHTML = "<p>Nenhuma cartinha foi cadastrada ainda.</p>";
         return;
       }
       
-      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Padrinho</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead><tbody>';
+      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
       
       data.forEach(item => {
-        // Usando JSON.stringify para passar os dados corretamente para a função onclick
-        const itemData = JSON.stringify({ id: item.id, nome: item.nome_aluno, turma: item.turma }).replace(/"/g, '&quot;');
+        const statusClass = item.apadrinhada ? 'status-apadrinhada' : 'status-disponivel';
+        const statusText = item.apadrinhada ? 'Apadrinhada' : 'Disponível';
+        // Usando JSON.stringify para passar os dados de forma segura para a função onclick
+        const itemData = JSON.stringify({ id: item.id, nome: item.nome_aluno, turma: item.turma, texto: item.texto }).replace(/"/g, '&quot;');
+        
         tableHTML += `
           <tr id="cartinha-${item.id}">
             <td>${item.nome_aluno}</td>
             <td>${item.turma}</td>
-            <td>${item.nome_padrinho}</td>
-            <td>${item.telefone_padrinho}</td>
-            <td>${item.endereco_entrega}</td>
+            <td class="${statusClass}">${statusText}</td>
             <td class="actions">
               <button class="btn-edit" onclick='editarCartinha(${itemData})'>Editar</button>
               <button class="btn-delete" onclick="excluirCartinha(${item.id})">Excluir</button>
@@ -109,9 +111,13 @@
 
     async function editarCartinha(item) {
       const novoNome = prompt("Editar nome do aluno:", item.nome);
-      const novaTurma = prompt("Editar turma do aluno:", item.turma);
+      if (novoNome === null) return; 
 
-      if (novoNome === null || novaTurma === null) return; 
+      const novaTurma = prompt("Editar turma do aluno:", item.turma);
+      if (novaTurma === null) return;
+
+      const novoTexto = prompt("Editar texto da cartinha:", item.texto);
+      if (novoTexto === null) return;
 
       const response = await fetch(`/api/server?action=edit&id=${item.id}`, {
         method: 'POST',
@@ -119,6 +125,7 @@
         body: JSON.stringify({
           nome: novoNome,
           turma: novaTurma,
+          texto: novoTexto,
           username: adminCredentials.user,
           password: adminCredentials.pass
         })
@@ -133,7 +140,7 @@
     }
 
     async function excluirCartinha(id) {
-      if (!confirm('Tem certeza que deseja excluir esta cartinha?')) {
+      if (!confirm('Tem certeza que deseja excluir esta cartinha? Se ela já foi apadrinhada, os dados do padrinho também serão removidos.')) {
         return;
       }
 
