@@ -2,34 +2,28 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Área do Admin</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
-    .actions button { padding: 5px 10px; margin-right: 5px; font-size: 0.8rem; }
-    .btn-edit { background-color: #007bff; }
-    .btn-edit:hover { background-color: #0056b3; }
-    .btn-delete { background-color: #dc3545; }
-    .btn-delete:hover { background-color: #c82333; }
-    .status-apadrinhada { color: green; font-weight: bold; }
-    .status-disponivel { color: orange; font-weight: bold; }
   </style>
 </head>
 <body>
   <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
     <a href="index.html">Sobre o Projeto</a>
-    <a href="cadastro.html">Novo Cadastro</a>
+    <a href="cadastro.html">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
     <a href="admin.html">Área do Admin</a>
   </nav>
   <div class="container">
-    <h1>Gerenciamento de Cartinhas</h1>
+    <h1>Área do Administrador</h1>
     
     <div id="login-section">
-      <h2>Login de Administrador</h2>
+      <h2>Login</h2>
       <form id="login-form">
         <label for="admin-user">Usuário:</label>
         <input type="text" id="admin-user" required>
@@ -40,124 +34,66 @@
     </div>
 
     <div id="data-section" style="display: none;">
-      <p>Aqui você pode editar ou excluir o cadastro de qualquer cartinha.</p>
-      <div id="lista-cartinhas-admin"></div>
+      <h2>Cartinhas Apadrinhadas</h2>
+      <p>Aqui está a lista de todas as crianças que já receberam um padrinho, com os detalhes para a entrega do presente.</p>
+      <div id="lista-apadrinhados"></div>
     </div>
   </div>
 
   <script>
-    let adminCredentials = {}; 
-
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-user').value;
       const pass = document.getElementById('admin-pass').value;
-      adminCredentials = { user, pass }; 
 
-      fetchAndDisplayData();
-    });
-
-    async function fetchAndDisplayData() {
       try {
         const response = await fetch('/api/server?admin=true', {
           method: 'GET',
           headers: {
-            'username': adminCredentials.user,
-            'password': adminCredentials.pass
+            'username': user,
+            'password': pass
           }
         });
-        if (!response.ok) throw new Error('Usuário ou senha inválidos!');
+
+        if (!response.ok) {
+          throw new Error('Usuário ou senha inválidos!');
+        }
         
         const data = await response.json();
+        
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('data-section').style.display = 'block';
+        
         displayData(data);
+
       } catch (error) {
         alert(error.message);
       }
-    }
+    });
 
     function displayData(data) {
-      const container = document.getElementById('lista-cartinhas-admin');
+      const container = document.getElementById('lista-apadrinhados');
       if (data.length === 0) {
-        container.innerHTML = "<p>Nenhuma cartinha foi cadastrada ainda.</p>";
+        container.innerHTML = "<p>Nenhuma cartinha foi apadrinhada ainda.</p>";
         return;
       }
       
-      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Padrinho</th><th>Telefone</th><th>Endereço de Entrega</th></tr></thead><tbody>';
       
       data.forEach(item => {
-        const statusClass = item.apadrinhada ? 'status-apadrinhada' : 'status-disponivel';
-        const statusText = item.apadrinhada ? 'Apadrinhada' : 'Disponível';
-        // Usando JSON.stringify para passar os dados de forma segura para a função onclick
-        const itemData = JSON.stringify({ id: item.id, nome: item.nome_aluno, turma: item.turma, texto: item.texto }).replace(/"/g, '&quot;');
-        
         tableHTML += `
-          <tr id="cartinha-${item.id}">
+          <tr>
             <td>${item.nome_aluno}</td>
             <td>${item.turma}</td>
-            <td class="${statusClass}">${statusText}</td>
-            <td class="actions">
-              <button class="btn-edit" onclick='editarCartinha(${itemData})'>Editar</button>
-              <button class="btn-delete" onclick="excluirCartinha(${item.id})">Excluir</button>
-            </td>
+            <td>${item.nome_padrinho}</td>
+            <td>${item.telefone_padrinho}</td>
+            <td>${item.endereco_entrega}</td>
           </tr>
         `;
       });
 
       tableHTML += '</tbody></table>';
       container.innerHTML = tableHTML;
-    }
-
-    async function editarCartinha(item) {
-      const novoNome = prompt("Editar nome do aluno:", item.nome);
-      if (novoNome === null) return; 
-
-      const novaTurma = prompt("Editar turma do aluno:", item.turma);
-      if (novaTurma === null) return;
-
-      const novoTexto = prompt("Editar texto da cartinha:", item.texto);
-      if (novoTexto === null) return;
-
-      const response = await fetch(`/api/server?action=edit&id=${item.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: novoNome,
-          turma: novaTurma,
-          texto: novoTexto,
-          username: adminCredentials.user,
-          password: adminCredentials.pass
-        })
-      });
-
-      if (response.ok) {
-        alert('Cartinha atualizada com sucesso!');
-        fetchAndDisplayData(); 
-      } else {
-        alert('Erro ao atualizar a cartinha.');
-      }
-    }
-
-    async function excluirCartinha(id) {
-      if (!confirm('Tem certeza que deseja excluir esta cartinha? Se ela já foi apadrinhada, os dados do padrinho também serão removidos.')) {
-        return;
-      }
-
-      const response = await fetch(`/api/server?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'username': adminCredentials.user,
-          'password': adminCredentials.pass
-        }
-      });
-
-      if (response.ok) {
-        alert('Cartinha excluída com sucesso!');
-        fetchAndDisplayData();
-      } else {
-        alert('Erro ao excluir a cartinha.');
-      }
     }
   </script>
 </body>
