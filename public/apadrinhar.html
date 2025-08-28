@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apadrinhar Cartinha</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
@@ -21,6 +22,7 @@
     <div id="detalhe-cartinha">Carregando...</div>
     <hr>
     <h2>Preencha seus dados para apadrinhar</h2>
+    
     <form>
       <label for="nome">Seu Nome:</label>
       <input type="text" id="nome" required>
@@ -31,27 +33,48 @@
       <button type="submit">Confirmar Apadrinhamento</button>
     </form>
   </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // (código existente para buscar detalhes da cartinha)
+      const cartinhaId = localStorage.getItem('cartinhaId');
+      const detalheDiv = document.getElementById('detalhe-cartinha');
+
+      if (!cartinhaId) {
+        detalheDiv.innerHTML = '<h2>Erro: Nenhuma cartinha selecionada. Volte para a lista.</h2>';
+        // Remove a linha que escondia o formulário
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/server?id=${cartinhaId}`);
+        const cartinha = await response.json();
+
+        let htmlConteudo = `<h3>${cartinha.nome_aluno} - Turma ${cartinha.turma}</h3>`;
+        if (cartinha.imagem_url) {
+          htmlConteudo += `<img src="${cartinha.imagem_url}" alt="Foto da cartinha" class="imagem-cartinha">`;
+        }
+        htmlConteudo += `<div class="texto-cartinha"><p>${cartinha.texto.replace(/\n/g, '<br>')}</p></div>`;
+        
+        detalheDiv.innerHTML = htmlConteudo;
+      } catch (error) {
+        detalheDiv.innerHTML = '<h2>Erro ao carregar detalhes da cartinha.</h2>';
+      }
     });
 
     document.querySelector('form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const cartinhaId = localStorage.getItem('cartinhaId');
       
-      // ***** A CORREÇÃO ESTÁ AQUI *****
-      // Construindo a URL com todos os dados como parâmetros de busca
-      const params = new URLSearchParams({
-        id: cartinhaId,
+      const body = JSON.stringify({
         nome: document.getElementById('nome').value,
         telefone: document.getElementById('telefone').value,
         endereco: document.getElementById('endereco').value
       });
 
-      const response = await fetch(`/api/server?${params.toString()}`, {
+      const response = await fetch(`/api/server?id=${cartinhaId}`, {
         method: 'PUT',
-        // O corpo agora vai vazio
+        headers: { 'Content-Type': 'application/json' },
+        body
       });
       
       if (response.ok) {

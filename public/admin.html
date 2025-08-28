@@ -21,7 +21,6 @@
   </nav>
   <div class="container">
     <h1>Área do Administrador</h1>
-    
     <div id="login-section">
       <h2>Login</h2>
       <form id="login-form">
@@ -32,54 +31,40 @@
         <button type="submit">Entrar</button>
       </form>
     </div>
-
     <div id="data-section" style="display: none;">
       <h2>Cartinhas Apadrinhadas</h2>
-      <p>Aqui está a lista de todas as crianças que já receberam um padrinho, com os detalhes para a entrega do presente.</p>
+      <p>Lista de crianças apadrinhadas e detalhes para a entrega do presente.</p>
       <div id="lista-apadrinhados"></div>
     </div>
   </div>
-
   <script>
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-user').value;
       const pass = document.getElementById('admin-pass').value;
-
       try {
         const response = await fetch('/api/server?admin=true', {
           method: 'GET',
-          headers: {
-            'username': user,
-            'password': pass
-          }
+          headers: { 'username': user, 'password': pass }
         });
-
         if (!response.ok) {
           throw new Error('Usuário ou senha inválidos!');
         }
-        
         const data = await response.json();
-        
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('data-section').style.display = 'block';
-        
         displayData(data);
-
       } catch (error) {
         alert(error.message);
       }
     });
-
     function displayData(data) {
       const container = document.getElementById('lista-apadrinhados');
       if (data.length === 0) {
         container.innerHTML = "<p>Nenhuma cartinha foi apadrinhada ainda.</p>";
         return;
       }
-      
       let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Padrinho</th><th>Telefone</th><th>Endereço de Entrega</th></tr></thead><tbody>';
-      
       data.forEach(item => {
         tableHTML += `
           <tr>
@@ -91,7 +76,6 @@
           </tr>
         `;
       });
-
       tableHTML += '</tbody></table>';
       container.innerHTML = tableHTML;
     }
