@@ -265,3 +265,37 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 }
+
+footer {
+  background: #154734; /* verde escuro elegante */
+  color: #fff;
+  text-align: center;
+  padding: 20px 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  border-top: 3px solid #c62828; /* detalhe vermelho natalino */
+}
+
+footer p {
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+footer .social-icons {
+  margin-top: 8px;
+}
+
+footer .social-icons a {
+  color: #fff;
+  margin: 0 10px;
+  font-size: 20px;
+  transition: 0.3s;
+}
+
+footer .social-icons a:hover {
+  color: #c62828; /* vermelho natalino no hover */
+  transform: scale(1.2);
+}

@@ -23,11 +23,12 @@ function getCaseInsensitiveHeader(headers, key) {
 export default async function handler(req, res) {
   const { id, admin } = req.query;
   const USUARIO_VALIDO = 'admin';
-  const SENHA_VALIDA = 'senha123';
+  const SENHA_VALIDA = 'administrador30';
 
   // --- LÓGICA DE GET (Listar) ---
   if (req.method === 'GET') {
     try {
+      // Admin vendo os padrinhos
       if (admin === 'true') {
         const username = getCaseInsensitiveHeader(req.headers, 'username');
         const password = getCaseInsensitiveHeader(req.headers, 'password');
@@ -40,11 +41,12 @@ export default async function handler(req, res) {
         `);
         return res.status(200).json(rows);
       }
+      // Listar UMA cartinha específica (público)
       if (id) {
-        // Adicionando o 'texto' de volta na busca
         const { rows } = await pool.query("SELECT nome_aluno, turma, texto, imagem_url FROM cartinhas WHERE id = $1", [id]);
         return res.status(200).json(rows[0]);
       }
+      // Listar TODAS as cartinhas (público)
       const { rows } = await pool.query("SELECT id, nome_aluno, turma, apadrinhada, imagem_url FROM cartinhas ORDER BY id");
       return res.status(200).json(rows);
     } catch (error) {
@@ -82,7 +84,6 @@ export default async function handler(req, res) {
   // --- LÓGICA DE POST (Cadastrar) ---
   if (req.method === 'POST') {
     try {
-      // Adicionando 'cartinha' de volta
       const { username, password, nome, turma, cartinha } = req.query;
       if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
         return res.status(401).send("Usuário ou senha inválidos.");
@@ -90,7 +91,6 @@ export default async function handler(req, res) {
       const filename = getCaseInsensitiveHeader(req.headers, 'x-vercel-filename');
       if (!filename) return res.status(400).send("Nenhum arquivo enviado.");
       const blob = await put(filename, req, { access: 'public', addRandomSuffix: true });
-      // Adicionando 'texto' de volta no INSERT
       await pool.query(
         "INSERT INTO cartinhas (nome_aluno, turma, texto, imagem_url) VALUES ($1, $2, $3, $4)",
         [nome, turma, cartinha, blob.url]
