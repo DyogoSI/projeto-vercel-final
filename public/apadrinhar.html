@@ -6,39 +6,21 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     .imagem-cartinha { max-width: 100%; border-radius: 8px; margin-bottom: 20px; }
-    /* Estilo para o novo aviso */
-    .aviso-contato {
-      background-color: #fffbe6;
-      border: 1px solid #ffe58f;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
-      text-align: center;
-      line-height: 1.6;
-    }
+    .texto-cartinha { margin-top: 15px; padding: 10px; background-color: #fff; border: 1px dashed #ddd; border-radius: 4px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <header>🎄 Cartinhas do Papai Noel 🎄</header>
+  <header>🎄 Projeto Cartinhas de Natal 🎄</header>
   <nav>
-    <a href="index.html">Sobre o Projeto</a>
-    <a href="cadastro.html">Cadastro (Admin)</a>
-    <a href="cartinhas.html">Ver Cartinhas</a>
+    <a href="index.html">Sobre</a>
     <a href="admin.html">Área do Admin</a>
+    <a href="cartinhas.html">Ver Cartinhas</a>
   </nav>
   <div class="container">
     <h1>Apadrinhar Cartinha</h1>
     <div id="detalhe-cartinha">Carregando...</div>
     <hr>
     <h2>Preencha seus dados para apadrinhar</h2>
-
-    <div class="aviso-contato">
-      ✨🚨 <strong>ATENÇÃO!</strong> 🚨✨<br>
-      Pedimos, por gentileza, que entre em contato com <strong>Stéffany</strong> para combinar a data e o local de entrega do presente.<br> 
-      📞 Telefone: <strong>(35) 9 9810-3031</strong><br><br>
-      Desde já, agradecemos imensamente sua colaboração e carinho! 💖🙏
-    </div>
-
     <form id="apadrinhar-form">
       <label for="nome">Seu Nome:</label>
       <input type="text" id="nome" required>
@@ -68,6 +50,8 @@
         if (cartinha.imagem_url) {
           htmlConteudo += `<img src="${cartinha.imagem_url}" alt="Foto da cartinha" class="imagem-cartinha">`;
         }
+        // Adicionando a exibição do texto de volta
+        htmlConteudo += `<div class="texto-cartinha"><p>${cartinha.texto.replace(/\n/g, '<br>')}</p></div>`;
         detalheDiv.innerHTML = htmlConteudo;
       } catch (error) {
         console.error('Erro ao buscar detalhes:', error);
@@ -89,12 +73,12 @@
         body
       });
       if (response.ok) {
-        // Mensagem de sucesso após o envio
         alert(
-          '✨🚨 Cartinha apadrinhada com sucesso! 🚨✨\n\n' +
-          'Por favor, não se esqueça de entrar em contato com a Stéffany para combinar a entrega.\n' +
+          '✨🚨 ATENÇÃO! 🚨✨\n\n' +
+          'Cartinha apadrinhada com sucesso! 💌🎁\n\n' +
+          'Pedimos, por gentileza, que entre em contato com Stéffany para combinar a data e o local de entrega do presente.\n' +
           '📞 Telefone: (35) 9 9810-3031\n\n' +
-          'Muito obrigado! 💖🙏'
+          'Desde já, agradecemos imensamente sua colaboração e carinho! 💖🙏'
         );
         localStorage.removeItem('cartinhaId');
         window.location.href = 'cartinhas.html';
