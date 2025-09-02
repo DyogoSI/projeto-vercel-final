@@ -4,86 +4,8 @@
   <meta charset="UTF-8">
   <title>Área do Admin</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
   <style>
-    /* Estilos gerais para a página de admin */
-    .container {
-        max-width: 1200px; /* Aumenta a largura para a tabela caber melhor */
-    }
-
-    /* Estilização da tabela */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 25px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        border-radius: 8px;
-        overflow: hidden; /* Garante que o border-radius funcione nas bordas da tabela */
-    }
-
-    th, td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-
-    thead th {
-        background-color: #c0392b; /* Vermelho escuro, como no header */
-        color: white;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    tbody tr:nth-of-type(even) {
-        background-color: #f8f8f8; /* Linhas alternadas com um cinza claro */
-    }
-
-    tbody tr:hover {
-        background-color: #f1f1f1; /* Efeito ao passar o mouse */
-    }
-    
-    /* Estilos para os botões e status */
-    .actions button {
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-    }
-
-    .actions button:hover {
-        transform: scale(1.05); /* Efeito de zoom no botão */
-    }
-    
-    .btn-delete {
-        background-color: #e74c3c;
-        color: white;
-    }
-
-    .btn-delete:hover {
-        background-color: #c0392b;
-    }
-
-    .status-apadrinhada {
-        color: #27ae60; /* Verde */
-        font-weight: bold;
-    }
-
-    .status-disponivel {
-        color: #f39c12; /* Laranja */
-        font-weight: bold;
-    }
-    .no-padrinho {
-        color: #888;
-    }
-    
-    /* Responsividade para a tabela */
-    .admin-table-wrapper {
-      overflow-x: auto;
-    }
+    /* ... (seus estilos existentes) ... */
   </style>
 </head>
 <body>
@@ -98,15 +20,7 @@
     <h1>Gerenciamento de Cartinhas</h1>
     
     <div id="login-section">
-      <h2>Login de Administrador</h2>
-      <form id="login-form">
-        <label for="admin-user">Usuário:</label>
-        <input type="text" id="admin-user" required>
-        <label for="admin-pass">Senha:</label>
-        <input type="password" id="admin-pass" required>
-        <button type="submit">Entrar</button>
-      </form>
-    </div>
+      </div>
 
     <div id="data-section" style="display: none;">
       <p>Gerencie todas as cartinhas cadastradas e veja os detalhes dos padrinhos.</p>
@@ -118,28 +32,11 @@
     let adminCredentials = {}; 
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const user = document.getElementById('admin-user').value;
-      const pass = document.getElementById('admin-pass').value;
-      adminCredentials = { user, pass }; 
-      fetchAndDisplayData();
+      // ... (código de login existente) ...
     });
 
     async function fetchAndDisplayData() {
-      try {
-        const response = await fetch('/api/server?admin=true', {
-          method: 'GET',
-          headers: { 'username': adminCredentials.user, 'password': adminCredentials.pass }
-        });
-        if (!response.ok) throw new Error('Usuário ou senha inválidos!');
-        
-        const data = await response.json();
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('data-section').style.display = 'block';
-        displayData(data);
-      } catch (error) {
-        alert(error.message);
-      }
+      // ... (código para buscar dados existente) ...
     }
 
     function displayData(data) {
@@ -149,24 +46,22 @@
         return;
       }
       
-      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Status</th><th>Padrinho</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead><tbody>';
+      // Adicionando a coluna "Sexo"
+      let tableHTML = '<table><thead><tr><th>Aluno</th><th>Turma</th><th>Sexo</th><th>Status</th><th>Padrinho</th><th>Ações</th></tr></thead><tbody>';
       
       data.forEach(item => {
         const statusClass = item.apadrinhada ? 'status-apadrinhada' : 'status-disponivel';
         const statusText = item.apadrinhada ? 'Apadrinhada' : 'Disponível';
-        
         const nomePadrinho = item.nome_padrinho || '<span class="no-padrinho">---</span>';
-        const telPadrinho = item.telefone_padrinho || '<span class="no-padrinho">---</span>';
-        const endPadrinho = item.endereco_entrega || '<span class="no-padrinho">---</span>';
+        const sexo = item.sexo || '<span class="no-padrinho">N/A</span>';
 
         tableHTML += `
           <tr id="cartinha-${item.id}">
             <td>${item.nome_aluno}</td>
             <td>${item.turma}</td>
+            <td>${sexo}</td>
             <td class="${statusClass}">${statusText}</td>
             <td>${nomePadrinho}</td>
-            <td>${telPadrinho}</td>
-            <td>${endPadrinho}</td>
             <td class="actions">
               <button class="btn-delete" onclick="excluirCartinha(${item.id})">Excluir</button>
             </td>
@@ -178,37 +73,21 @@
     }
 
     async function excluirCartinha(id) {
-      if (!confirm('Tem certeza que deseja excluir esta cartinha? Esta ação não pode ser desfeita.')) {
-        return;
-      }
-
-      const response = await fetch(`/api/server?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'username': adminCredentials.user,
-          'password': adminCredentials.pass
-        }
-      });
-
-      if (response.ok) {
-        alert('Cartinha excluída com sucesso!');
-        fetchAndDisplayData();
-      } else {
-        alert('Erro ao excluir a cartinha.');
-      }
+      // ... (código de excluir existente) ...
     }
   </script>
-<footer>
-  <p>© 2025 Cartinhas do Papai Noel 🎄 | Desenvolvido por Dyogo Henrique | Web Developer</p>
-  <div class="social-icons">
-    <a href="https://github.com/DyogoSI" target="_blank" title="GitHub">
-      <i class="fab fa-github"></i>
-    </a>
-    <a href="https://www.linkedin.com/in/dyogo-henrique-4505542b9/" target="_blank" title="LinkedIn">
-      <i class="fab fa-linkedin"></i>
-    </a>
-  </div>
-</footer>
-
+  
+    <footer>
+    <p>© 2025 Cartinhas do Papai Noel 🎄 | Desenvolvido por Dyogo Henrique | Web Developer</p>
+    <div class="social-icons">
+      <a href="https://github.com/DyogoSI" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="https://www.linkedin.com/in/dyogo-henrique-4505542b9/" target="_blank" title="LinkedIn">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </div>
+  </footer>
+  
 </body>
 </html>
