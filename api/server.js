@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       }
       // Listar UMA cartinha específica (público)
       if (id) {
-        const { rows } = await pool.query("SELECT nome_aluno, turma, texto, imagem_url FROM cartinhas WHERE id = $1", [id]);
+        const { rows } = await pool.query("SELECT nome_aluno, turma, texto, imagem_url, sexo FROM cartinhas WHERE id = $1", [id]);
         return res.status(200).json(rows[0]);
       }
       // Listar TODAS as cartinhas (público)
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
   // --- LÓGICA DE POST (Cadastrar) ---
   if (req.method === 'POST') {
     try {
-      const { username, password, nome, turma, cartinha } = req.query;
+      const { username, password, nome, turma, sexo, cartinha } = req.query;
       if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
         return res.status(401).send("Usuário ou senha inválidos.");
       }
@@ -92,8 +92,8 @@ export default async function handler(req, res) {
       if (!filename) return res.status(400).send("Nenhum arquivo enviado.");
       const blob = await put(filename, req, { access: 'public', addRandomSuffix: true });
       await pool.query(
-        "INSERT INTO cartinhas (nome_aluno, turma, texto, imagem_url) VALUES ($1, $2, $3, $4)",
-        [nome, turma, cartinha, blob.url]
+        "INSERT INTO cartinhas (nome_aluno, turma, texto, imagem_url, sexo) VALUES ($1, $2, $3, $4, $5)",
+        [nome, turma, cartinha, blob.url, sexo]
       );
       return res.status(201).send("Cartinha cadastrada!");
     } catch (error) {

@@ -55,6 +55,9 @@
         }
         const cartinha = await response.json();
         let htmlConteudo = `<h3>${cartinha.nome_aluno} - Turma ${cartinha.turma}</h3>`;
+        if(cartinha.sexo) {
+            htmlConteudo += `<h4>Sexo: ${cartinha.sexo}</h4>`;
+        }
         if (cartinha.imagem_url) {
           htmlConteudo += `<img src="${cartinha.imagem_url}" alt="Foto da cartinha" class="imagem-cartinha">`;
         }
@@ -108,7 +111,5 @@
 </footer>
 
 </body>
-
-
 
 </html>
