@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <title>Apadrinhar Cartinha</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
     .imagem-cartinha { max-width: 100%; border-radius: 8px; margin-bottom: 20px; }
     .texto-cartinha { margin-top: 15px; padding: 10px; background-color: #fff; border: 1px dashed #ddd; border-radius: 4px; white-space: pre-wrap; }
-    .info-aluno { font-size: 1.2rem; text-align: center; margin-bottom: 15px; }
   </style>
 </head>
 <body>
@@ -22,7 +23,7 @@
     <div id="detalhe-cartinha">Carregando...</div>
     <hr>
     <h2>Preencha seus dados para apadrinhar</h2>
-    <form id="apadrinhar-form">
+    <form>
       <div class="aviso-contato">
         ✨🚨 <strong>ATENÇÃO!</strong> 🚨✨<br>
         Pedimos, por gentileza, que entre em contato com <strong>Stéffany</strong> para combinar a data e o local de entrega do presente.<br> 
@@ -44,17 +45,16 @@
       const detalheDiv = document.getElementById('detalhe-cartinha');
       if (!cartinhaId) {
         detalheDiv.innerHTML = '<h2>Erro: Nenhuma cartinha selecionada.</h2>';
-        document.getElementById('apadrinhar-form').style.display = 'none';
+        document.querySelector('form').style.display = 'none';
         return;
       }
       try {
         const response = await fetch(`/api/server?id=${cartinhaId}`);
-        if (!response.ok) { throw new Error('Erro na rede.'); }
+        if (!response.ok) {
+            throw new Error(`Erro na rede: ${response.statusText}`);
+        }
         const cartinha = await response.json();
-        
-        // MOSTRANDO O SEXO DA CRIANÇA
-        let htmlConteudo = `<div class="info-aluno"><strong>${cartinha.nome_aluno}</strong> - Turma ${cartinha.turma} (${cartinha.sexo})</div>`;
-        
+        let htmlConteudo = `<h3>${cartinha.nome_aluno} - Turma ${cartinha.turma}</h3>`;
         if (cartinha.imagem_url) {
           htmlConteudo += `<img src="${cartinha.imagem_url}" alt="Foto da cartinha" class="imagem-cartinha">`;
         }
@@ -64,11 +64,11 @@
         detalheDiv.innerHTML = htmlConteudo;
       } catch (error) {
         console.error('Erro ao buscar detalhes:', error);
-        detalheDiv.innerHTML = '<h2>Não foi possível carregar os detalhes da cartinha.</h2>';
+        detalheDiv.innerHTML = '<h2>Não foi possível carregar os detalhes da cartinha. Tente novamente.</h2>';
       }
     });
 
-    document.getElementById('apadrinhar-form').addEventListener('submit', async (e) => {
+    document.querySelector('form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const cartinhaId = localStorage.getItem('cartinhaId');
       const body = JSON.stringify({
@@ -82,7 +82,12 @@
         body
       });
       if (response.ok) {
-        alert('✨🚨 ATENÇÃO! 🚨✨\n\n' + 'Cartinha apadrinhada com sucesso! 💌🎁\n\n' + 'Pedimos, por gentileza, que entre em contato com Stéffany para combinar a data e o local de entrega do presente.\n' + '📞 Telefone: (35) 9 9810-3031\n\n' + 'Desde já, agradecemos imensamente sua colaboração e carinho! 💖🙏');
+        alert(
+          '✨🚨 Cartinha apadrinhada com sucesso! 🚨✨\n\n' +
+          'Por favor, não se esqueça de entrar em contato com a Stéffany para combinar a entrega.\n' +
+          '📞 Telefone: (35) 9 9810-3031\n\n' +
+          'Muito obrigado! 💖🙏'
+        );
         localStorage.removeItem('cartinhaId');
         window.location.href = 'cartinhas.html';
       } else {
@@ -90,19 +95,20 @@
       }
     });
   </script>
-
-  
-  <footer>
-    <p>© 2025 Cartinhas do Papai Noel 🎄 | Desenvolvido por Dyogo Henrique | Web Developer</p>
-    <div class="social-icons">
-      <a href="https://github.com/DyogoSI" target="_blank" title="GitHub">
-        <i class="fab fa-github"></i>
-      </a>
-      <a href="https://www.linkedin.com/in/dyogo-henrique-4505542b9/" target="_blank" title="LinkedIn">
-        <i class="fab fa-linkedin"></i>
-      </a>
-    </div>
-  </footer>
+<footer>
+  <p>© 2025 Cartinhas do Papai Noel 🎄 | Desenvolvido por Dyogo Henrique | Web Developer</p>
+  <div class="social-icons">
+    <a href="https://github.com/DyogoSI" target="_blank" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://www.linkedin.com/in/dyogo-henrique-4505542b9/" target="_blank" title="LinkedIn">
+      <i class="fab fa-linkedin"></i>
+    </a>
+  </div>
+</footer>
 
 </body>
+
+
+
 </html>

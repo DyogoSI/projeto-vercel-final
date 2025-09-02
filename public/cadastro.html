@@ -5,6 +5,7 @@
   <title>Cadastro de Cartinhas</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
 <body>
   <header>🎄 Cartinhas do Papai Noel 🎄</header>
@@ -24,13 +25,6 @@
       <input type="text" id="nome" required>
       <label for="turma">Turma:</label>
       <input type="text" id="turma" required>
-      
-      <label for="sexo">Sexo da Criança:</label>
-      <select id="sexo" required>
-        <option value="" disabled selected>Selecione...</option>
-        <option value="Masculino">Masculino</option>
-        <option value="Feminino">Feminino</option>
-      </select>
       
       <label for="cartinha">Texto da Cartinha (Digitado):</label>
       <textarea id="cartinha" rows="6" required></textarea>
@@ -52,13 +46,12 @@
         return;
       }
 
-      // Adicionando o "sexo" na lista de dados a serem enviados
+      // Adicionando o texto da cartinha de volta
       const params = new URLSearchParams({
         username: document.getElementById('username').value,
         password: document.getElementById('password').value,
         nome: document.getElementById('nome').value,
         turma: document.getElementById('turma').value,
-        sexo: document.getElementById('sexo').value, // Novo campo
         cartinha: document.getElementById('cartinha').value
       });
 
@@ -83,17 +76,18 @@
     });
   </script>
 
-  <footer>
-    <p>© 2025 Cartinhas do Papai Noel 🎄 | Desenvolvido por Dyogo Henrique | Web Developer</p>
-    <div class="social-icons">
-      <a href="https://github.com/DyogoSI" target="_blank" title="GitHub">
-        <i class="fab fa-github"></i>
-      </a>
-      <a href="https://www.linkedin.com/in/dyogo-henrique-4505542b9/" target="_blank" title="LinkedIn">
-        <i class="fab fa-linkedin"></i>
-      </a>
-    </div>
-  </footer>
+<footer>
+  <p>© 2025 Cartinhas do Papai Noel 🎄 | Desenvolvido por Dyogo Henrique | Web Developer</p>
+  <div class="social-icons">
+    <a href="https://github.com/DyogoSI" target="_blank" title="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://www.linkedin.com/in/dyogo-henrique-4505542b9/" target="_blank" title="LinkedIn">
+      <i class="fab fa-linkedin"></i>
+    </a>
+  </div>
+</footer>
 
 </body>
+
 </html>
