@@ -2,12 +2,20 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#c0392b">
   <title>Projeto Cartinhas de Natal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
     /* Estilo para a nova caixa do PIX (mantido aqui ou pode ir para style.css) */
     .pix-box {
       background-color: #e0f7fa;
@@ -30,31 +38,98 @@
       font-weight: bold;
       color: #000;
       background-color: #fff;
-      padding: 10px;
+      padding: 10px 18px;
       border-radius: 5px;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       margin-top: 10px;
+      cursor: pointer;
+      border: 2px solid #32BCAD;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+    .pix-box .chave-pix:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(50, 188, 173, 0.35);
+    }
+    .pix-box .chave-pix:active {
+      transform: translateY(0);
+    }
+    .pix-box .chave-pix .pix-icon {
+      width: 22px;
+      height: 22px;
+      fill: #32BCAD;
+      flex-shrink: 0;
+    }
+    .pix-box .chave-pix .copy-feedback {
+      position: absolute;
+      top: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #32BCAD;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: normal;
+      padding: 4px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .pix-box .chave-pix .copy-feedback.show {
+      opacity: 1;
     }
   </style>
 </head>
 <body class="body-index">
-  <header>🎄Cartinhas do Papai Noel 🎄</header>
+  <header>
+    <span class="header-title"><span class="header-tree" aria-hidden="true">🎄</span><span class="header-divider"></span>Cartinhas do Papai Noel</span>
+    <div class="header-actions">
+      <a class="header-instagram" href="https://www.instagram.com/cartinhasparaopapainoel?igsi=eGU0aDIybTlmdHNj" target="_blank" rel="noopener" title="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
   <nav>
     <a href="index.html">Sobre o Projeto</a>
     <a href="cadastro.html">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
     <a href="admin.html">Área do Admin</a>
   </nav>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="side-drawer" id="sideDrawer">
+    <button class="drawer-close" id="drawerClose" aria-label="Fechar menu">&times;</button>
+    <a href="index.html">Sobre o Projeto</a>
+    <a href="cadastro.html">Cadastro (Admin)</a>
+    <a href="cartinhas.html">Ver Cartinhas</a>
+    <a href="admin.html">Área do Admin</a>
+  </aside>
   <div class="container">
-    <h1>Cartinhas do Papai Noel – Um Sonho que Virou Corrente do Bem</h1>
-    <p>Esse projeto teve inicio em 2024, de forma simples, mas cheia de amor. Naquele ano, tudo começou com um aluno, inspirado na tradicional troca de cartinhas para o Papai Noel.</p>
-    <p>Logo percebi que não podia parar por ali. Senti a necessidade de fazer mais, para que outras crianças também pudessem ter seu Natal iluminado. Comecei indicando a ideia para amigos da faculdade, familiares e pessoas próximas. O que eu não esperava era que a corrente do bem fosse se espalhar tão rápido…</p>
-    <p>Sem perceber, o projeto ganhou vida própria! Pessoas começaram a me procurar por redes sociais, querendo saber como poderiam participar, doar, apadrinhar. E assim, em poucos dias, estávamos com quase 90 crianças apadrinhadas — e pasmem — ainda faltaram cartinhas para atender tanta gente que queria ajudar! 😅</p>
-    <p>Agora, em 2025, o nosso coração sonha ainda mais alto. Queremos apadrinhar não apenas uma, mas duas escolas: a Escola Estadual de Douradinho e a Escola Municipal Adoniro de Souza. Mas não é só isso… queremos proporcionar um dia mágico para as crianças, com recreação, brinquedos infláveis, pipoca, algodão doce e muitas risadas.</p>
-    <p>Só que este sonho só vai se tornar realidade novamente com a ajuda de todos. Pois, nesse ano nossa meta é maior. Queremos que cada criança dessas escolas viva um momento que ela guardará para sempre no coração — porque mais do que presentes, estamos falando de amor, esperança e memória afetiva.</p>
+    <h1>Cartinhas do Papai Noel – Um Sonho que Virou Corrente do Bem ❤️🎅</h1>
+    <p>Esse projeto teve início em 2024, de forma simples, mas cheia de amor. Naquele ano, tudo começou com um aluno, inspirado na tradicional troca de cartinhas para o Papai Noel.</p>
+    <p>Logo percebi que não poderia parar por ali, senti a necessidade de fazer mais. Comecei compartilhando a ideia com amigos da faculdade, familiares e pessoas próximas. O que eu não esperava era que essa corrente do bem fosse se espalhar tão rapidamente.</p>
+    <p>Sem perceber, o projeto ganhou vida própria! Pessoas começaram a me procurar pelas redes sociais, querendo saber como poderiam participar, doar e apadrinhar uma criança. E assim, em poucos dias, chegamos a quase 90 crianças apadrinhadas e, para nossa surpresa, ainda faltaram cartinhas para atender tantas pessoas que queriam ajudar! 😅</p>
+    <p>Em 2025, o sonho cresceu ainda mais. Conseguimos alcançar quase 200 crianças apadrinhadas, tornando o projeto cada vez maior e mostrando que, quando pessoas se unem por uma causa, pequenas atitudes podem transformar o Natal de centenas de crianças.</p>
+    <p>E agora, em <strong>2026</strong>, queremos dar mais um passo nessa história. Neste ano, serão <strong>três instituições atendidas</strong>, com aproximadamente <strong>250 crianças beneficiadas</strong>.</p>
+    <p>Na comunidade de <strong>Pinhalzinho</strong>, teremos novamente as tradicionais <strong>Cartinhas para o Papai Noel</strong>, permitindo que cada criança escreva seu pedido e tenha a oportunidade de receber um presente escolhido especialmente para ela.</p>
+    <p>Em <strong>Douradinho</strong>, a campanha será voltada para a arrecadação de <strong>caixas de bombons da marca Nestlé</strong>, levando um pouco mais de doçura e alegria para o Natal das crianças.</p>
+    <p>Além dessas duas instituições, também estaremos presentes em <strong>uma terceira instituição social</strong>, ampliando ainda mais o alcance dessa corrente do bem e levando carinho, atenção e esperança para outras crianças.</p>
+    <p>E, assim como no ano passado, queremos proporcionar muito mais do que a entrega de presentes. Queremos transformar esse momento em uma verdadeira experiência de Natal! 🎄✨</p>
+    <p>Porque, no final, não estamos falando apenas de presentes ou de doces. Estamos falando de <strong>amor, cuidado, esperança e memória afetiva</strong>. Estamos falando de proporcionar às crianças um dia em que elas possam simplesmente brincar, sorrir e se sentir especiais.</p>
+    <p>Em 2026, nossa responsabilidade é ainda maior, mas o nosso desejo também cresceu: queremos chegar a aproximadamente <strong>250 crianças</strong> e fazer com que cada uma delas guarde no coração uma lembrança bonita deste Natal.</p>
     <p>✨ Você pode fazer parte dessa história.<br>
-       ✨ Você pode ser o motivo do sorriso de uma criança neste Natal.</p>
-    <p>Vamos juntos? 💖</p>
+       ✨ Você pode ser o motivo do sorriso de uma criança.<br>
+       ✨ Você pode ajudar a transformar um simples gesto em uma memória para a vida inteira.</p>
+    <p>Vamos juntos fazer essa corrente do bem crescer ainda mais? ❤️🎅🎄</p>
+    <p>Porque quando fazemos o bem juntos, o Natal fica muito mais bonito.</p>
     <p>Atenciosamente,</p>
     <p>Stéffany Souza</p>
 
@@ -63,14 +138,47 @@
   <p>✨ Faça parte dessa corrente do bem! <br>
   Todo dinheiro arrecadado será revertido para a compra de doces para as demais crianças da escola (do 6º ano do Ensino Fundamental ao 3º ano do Ensino Médio).</p>
   <p>Nossa chave PIX (Celular):</p>
-  <div class="chave-pix">35998103031</div>
+  <div class="chave-pix" id="chavePix" onclick="copiarChavePix()" title="Clique para copiar">
+    <svg class="pix-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M5.283 18.36a3.505 3.505 0 0 0 2.493-1.032l3.6-3.6a.684.684 0 0 1 .946 0l3.613 3.613a3.504 3.504 0 0 0 2.493 1.032h.71l-4.56 4.56a3.647 3.647 0 0 1-5.156 0L4.85 18.36ZM18.428 5.627a3.505 3.505 0 0 0-2.493 1.032l-3.613 3.614a.67.67 0 0 1-.946 0l-3.6-3.6A3.505 3.505 0 0 0 5.283 5.64h-.434l4.573-4.572a3.646 3.646 0 0 1 5.156 0l4.559 4.559ZM1.068 9.422 3.79 6.699h1.492a2.483 2.483 0 0 1 1.744.722l3.6 3.6a1.73 1.73 0 0 0 2.443 0l3.614-3.613a2.482 2.482 0 0 1 1.744-.723h1.767l2.737 2.737a3.646 3.646 0 0 1 0 5.156l-2.736 2.736h-1.768a2.482 2.482 0 0 1-1.744-.722l-3.613-3.613a1.77 1.77 0 0 0-2.444 0l-3.6 3.6a2.483 2.483 0 0 1-1.744.722H3.791l-2.723-2.723a3.646 3.646 0 0 1 0-5.156"/>
+    </svg>
+    <span>35998103031</span>
+    <span class="copy-feedback" id="copyFeedback">Copiado!</span>
+  </div>
   <p style="margin-top: 10px; font-weight: bold;">Stéffany Victoria Souza Campos</p>
 </div>
+
+<script>
+  function copiarChavePix() {
+    const chave = "35998103031";
+    const feedback = document.getElementById('copyFeedback');
+    const mostrarFeedback = () => {
+      feedback.classList.add('show');
+      setTimeout(() => feedback.classList.remove('show'), 1500);
+    };
+    const copiarComExecCommand = () => {
+      const textarea = document.createElement('textarea');
+      textarea.value = chave;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      mostrarFeedback();
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(chave).then(mostrarFeedback).catch(copiarComExecCommand);
+    } else {
+      copiarComExecCommand();
+    }
+  }
+</script>
 
   </div>
 
   <footer>
-    <p>© 2025 Cartinhas do Papai Noel 🎄 | Desenvolvido por DH | Web Developer</p>
+    <p>© 2026 Cartinhas do Papai Noel 🎄 | Desenvolvido por DH | Web Developer</p>
     <div class="social-icons">
       <a href="https://github.com/DyogoSI" target="_blank" title="GitHub">
         <i class="fab fa-github"></i>
@@ -81,5 +189,12 @@
     </div>
   </footer>
 
+  <div class="ig-fab-wrap">
+    <a class="ig-fab" href="https://www.instagram.com/cartinhasparaopapainoel?igsi=eGU0aDIybTlmdHNj" target="_blank" rel="noopener" title="Siga no Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+  </div>
+
+  <script src="js/nav-toggle.js"></script>
 </body>
 </html>
