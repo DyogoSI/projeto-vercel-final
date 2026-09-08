@@ -47,8 +47,16 @@ header {
   gap: 0.4rem;
 }
 
+header .header-text {
+  max-width: calc(100% - 350px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem 0.7rem;
+}
+
 header .header-title {
-  max-width: calc(100% - 3.5rem);
   display: inline-flex;
   align-items: center;
 }
@@ -64,6 +72,13 @@ header .header-divider {
   height: 1.6em;
   background: transparent;
   flex-shrink: 0;
+}
+
+header .header-greeting {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffe9c7;
+  white-space: nowrap;
 }
 
 header .header-actions {
@@ -588,16 +603,27 @@ tbody tr:hover {
   header {
     font-size: 1.3rem;
     padding: 1.1rem 0.75rem;
-    padding-right: 5rem;
+    padding-right: 7rem;
+  }
+
+  header .header-text {
+    max-width: 100%;
   }
 
   header .header-actions {
-    right: 24px;
-    gap: 12px;
+    right: 16px;
+    gap: 10px;
   }
 
-  header .header-instagram {
-    font-size: 1.3rem;
+  header .header-instagram,
+  header .header-person {
+    font-size: 1.25rem;
+  }
+
+  header .header-greeting {
+    font-size: 0.85rem;
+    width: 100%;
+    text-align: center;
   }
 
   .nav-toggle {

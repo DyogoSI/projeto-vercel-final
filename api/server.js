@@ -20,10 +20,19 @@ function getCaseInsensitiveHeader(headers, key) {
   return undefined;
 }
 
+const ADMIN_USERS = {
+  dyogo: 'dyogo2026',
+  steffany: 'natal2026'
+};
+
+function isValidAdmin(username, password) {
+  if (!username || !password) return false;
+  const validPassword = ADMIN_USERS[username.toLowerCase()];
+  return validPassword !== undefined && validPassword === password;
+}
+
 export default async function handler(req, res) {
   const { id, admin } = req.query;
-  const USUARIO_VALIDO = 'admin';
-  const SENHA_VALIDA = 'administrador30';
 
   // --- LÓGICA DE GET (Listar) ---
   if (req.method === 'GET') {
@@ -32,7 +41,7 @@ export default async function handler(req, res) {
       if (admin === 'true') {
         const username = getCaseInsensitiveHeader(req.headers, 'username');
         const password = getCaseInsensitiveHeader(req.headers, 'password');
-        if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
+        if (!isValidAdmin(username, password)) {
           return res.status(401).send("Acesso não autorizado.");
         }
         const { rows } = await pool.query(`
@@ -85,7 +94,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { username, password, nome, turma, sexo, cartinha } = req.query;
-      if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
+      if (!isValidAdmin(username, password)) {
         return res.status(401).send("Usuário ou senha inválidos.");
       }
       const filename = getCaseInsensitiveHeader(req.headers, 'x-vercel-filename');
@@ -107,7 +116,7 @@ export default async function handler(req, res) {
     try {
       const username = getCaseInsensitiveHeader(req.headers, 'username');
       const password = getCaseInsensitiveHeader(req.headers, 'password');
-      if (username !== USUARIO_VALIDO || password !== SENHA_VALIDA) {
+      if (!isValidAdmin(username, password)) {
         return res.status(401).send("Acesso não autorizado.");
       }
       await pool.query("DELETE FROM cartinhas WHERE id = $1", [id]);

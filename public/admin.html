@@ -168,7 +168,10 @@
 </head>
 <body>
   <header>
-    <span class="header-title"><span class="header-tree" aria-hidden="true">🎄</span><span class="header-divider"></span>Cartinhas do Papai Noel</span>
+    <div class="header-text">
+      <span class="header-title"><span class="header-tree" aria-hidden="true">🎄</span><span class="header-divider"></span>Cartinhas do Papai Noel</span>
+      <span class="header-greeting admin-only" id="headerGreeting" style="display:none;">Olá, <span class="greeting-name" id="headerGreetingName"></span></span>
+    </div>
     <div class="header-actions">
       <a class="header-instagram" href="https://www.instagram.com/cartinhasparaopapainoel?igsi=eGU0aDIybTlmdHNj" target="_blank" rel="noopener" title="Instagram">
         <i class="fab fa-instagram"></i>
@@ -393,6 +396,16 @@
         <input type="password" id="site-admin-pass" required>
         <button type="submit">Entrar</button>
       </form>
+    </div>
+  </div>
+
+  <div class="auth-gate" id="loggedInGate" style="display:none;">
+    <div class="auth-box">
+      <button class="auth-close" id="loggedInClose" aria-label="Fechar">&times;</button>
+      <div class="auth-icon"><i class="fas fa-user-check"></i></div>
+      <h2>Você já está logado</h2>
+      <p class="auth-subtitle">Logado como <strong id="loggedInName"></strong></p>
+      <button type="button" class="auth-back" id="logoutBtn">Sair</button>
     </div>
   </div>
 
