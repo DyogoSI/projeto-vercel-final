@@ -36,7 +36,7 @@ export default async function handler(req, res) {
           return res.status(401).send("Acesso não autorizado.");
         }
         const { rows } = await pool.query(`
-          SELECT c.id, c.nome_aluno, c.turma, c.apadrinhada, p.nome_padrinho, p.telefone_padrinho, p.endereco_entrega
+          SELECT c.id, c.nome_aluno, c.turma, c.sexo, c.texto, c.imagem_url, c.apadrinhada, p.nome_padrinho, p.telefone_padrinho, p.endereco_entrega
           FROM cartinhas c LEFT JOIN padrinhos p ON c.id = p.cartinha_id ORDER BY c.id;
         `);
         return res.status(200).json(rows);

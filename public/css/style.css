@@ -273,13 +273,59 @@ form label {
   font-weight: bold;
 }
 
-form input, form textarea {
+form input, form textarea, form select {
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
+  font-family: inherit;
+  background-color: var(--branco);
+  color: var(--preto);
+}
+
+form input:focus, form textarea:focus, form select:focus {
+  outline: none;
+  border-color: var(--vermelho-principal);
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.15);
+}
+
+form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23555' d='M4 6l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  padding-right: 34px;
+}
+
+form input[type="file"] {
+  padding: 6px;
+  cursor: pointer;
+}
+
+form input[type="file"]::file-selector-button,
+form input[type="file"]::-webkit-file-upload-button {
+  padding: 10px 18px;
+  margin-right: 14px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--vermelho-principal);
+  color: var(--branco);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+form input[type="file"]:hover::file-selector-button,
+form input[type="file"]:hover::-webkit-file-upload-button {
+  background-color: var(--vermelho-secundario);
 }
 
 form button {
@@ -295,6 +341,87 @@ form button {
 
 form button:hover {
   background-color: #219d55;
+}
+
+/* --- POPUP DE LOGIN (GATE) --- */
+.auth-gate {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2500;
+  padding: 20px;
+}
+
+.auth-box {
+  background: var(--branco);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 360px;
+  padding: 35px 30px 30px;
+  text-align: center;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+}
+
+.auth-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--vermelho-principal), var(--vermelho-vivo));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  color: var(--branco);
+  font-size: 2rem;
+  box-shadow: 0 6px 16px rgba(192, 57, 43, 0.4);
+}
+
+.auth-box h2 {
+  margin-top: 0;
+  margin-bottom: 6px;
+  color: var(--vermelho-principal);
+}
+
+.auth-box .auth-subtitle {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.auth-box form {
+  margin-top: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+}
+
+.auth-box .auth-back {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 20px;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color: #555;
+  font-size: 1rem;
+  font-family: inherit;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-box .auth-back:hover {
+  background-color: #f2f2f2;
+  border-color: #aaa;
 }
 
 /* --- CAIXA DO PIX --- */

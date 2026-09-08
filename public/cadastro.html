@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Cadastro de Cartinhas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,34 +40,67 @@
     <a href="cartinhas.html">Ver Cartinhas</a>
     <a href="admin.html">Área do Admin</a>
   </aside>
+  <div class="auth-gate" id="login-section">
+    <div class="auth-box">
+      <div class="auth-icon"><i class="fas fa-user"></i></div>
+      <h2>Login de Administrador</h2>
+      <p class="auth-subtitle">Faça login para cadastrar uma nova cartinha.</p>
+      <form id="login-form">
+        <label for="admin-user">Usuário:</label>
+        <input type="text" id="admin-user" required>
+        <label for="admin-pass">Senha:</label>
+        <input type="password" id="admin-pass" required>
+        <button type="submit">Entrar</button>
+      </form>
+      <a class="auth-back" href="index.html">Voltar para o início</a>
+    </div>
+  </div>
+
   <div class="container">
     <h1>Cadastro de Cartinha</h1>
-    <form id="cadastro-form">
-      <label for="foto">Foto da Cartinha:</label>
-      <input type="file" id="foto" name="foto" accept="image/*" required>
-      <hr>
-      <label for="nome">Nome do Aluno:</label>
-      <input type="text" id="nome" required>
-      <label for="turma">Turma:</label>
-      <input type="text" id="turma" required>
-      <label for="sexo">Sexo:</label>
-      <select id="sexo" required>
-        <option value="Menino">Menino</option>
-        <option value="Menina">Menina</option>
-      </select>
-      
-      <label for="cartinha">Texto da Cartinha (Digitado):</label>
-      <textarea id="cartinha" rows="6" required></textarea>
-      
-      <hr>
-      <label for="username">Usuário:</label>
-      <input type="text" id="username" required>
-      <label for="password">Senha:</label>
-      <input type="password" id="password" required>
-      <button type="submit">Cadastrar Cartinha</button>
-    </form>
+    <div id="cadastro-section" style="display: none;">
+      <form id="cadastro-form">
+        <label for="foto">Foto da Cartinha:</label>
+        <input type="file" id="foto" name="foto" accept="image/*" required>
+        <hr>
+        <label for="nome">Nome do Aluno:</label>
+        <input type="text" id="nome" required>
+        <label for="turma">Turma:</label>
+        <input type="text" id="turma" required>
+        <label for="sexo">Sexo:</label>
+        <select id="sexo" required>
+          <option value="Menino">Menino</option>
+          <option value="Menina">Menina</option>
+        </select>
+
+        <label for="cartinha">Texto da Cartinha (Digitado):</label>
+        <textarea id="cartinha" rows="6" required></textarea>
+
+        <button type="submit">Cadastrar Cartinha</button>
+      </form>
+    </div>
   </div>
   <script>
+    let adminCredentials = {};
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = document.getElementById('admin-user').value;
+      const pass = document.getElementById('admin-pass').value;
+      try {
+        const response = await fetch('/api/server?admin=true', {
+          method: 'GET',
+          headers: { 'username': user, 'password': pass }
+        });
+        if (!response.ok) throw new Error('Usuário ou senha inválidos!');
+        adminCredentials = { user, pass };
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('cadastro-section').style.display = 'block';
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
     document.getElementById('cadastro-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const file = document.getElementById('foto').files[0];
@@ -75,10 +109,9 @@
         return;
       }
 
-      // Adicionando o texto da cartinha de volta
       const params = new URLSearchParams({
-        username: document.getElementById('username').value,
-        password: document.getElementById('password').value,
+        username: adminCredentials.user,
+        password: adminCredentials.pass,
         nome: document.getElementById('nome').value,
         turma: document.getElementById('turma').value,
         sexo: document.getElementById('sexo').value,
@@ -87,13 +120,13 @@
 
       const response = await fetch(`/api/server?${params.toString()}`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': file.type,
           'x-vercel-filename': file.name
         },
         body: file
       });
-      
+
       if (response.ok) {
         alert('Cartinha cadastrada com sucesso!');
         e.target.reset();
