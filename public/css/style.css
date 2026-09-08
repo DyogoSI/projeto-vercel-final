@@ -76,7 +76,8 @@ header .header-actions {
   gap: 16px;
 }
 
-header .header-instagram {
+header .header-instagram,
+header .header-person {
   font-size: 1.5rem;
   color: var(--branco);
   line-height: 0;
@@ -85,9 +86,18 @@ header .header-instagram {
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-header .header-instagram:hover {
+header .header-instagram:hover,
+header .header-person:hover {
   transform: scale(1.15);
   opacity: 0.85;
+}
+
+header .header-person {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
 }
 
 nav {
@@ -358,6 +368,7 @@ form button:hover {
 }
 
 .auth-box {
+  position: relative;
   background: var(--branco);
   border-radius: 14px;
   width: 100%;
@@ -365,6 +376,22 @@ form button:hover {
   padding: 35px 30px 30px;
   text-align: center;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+}
+
+.auth-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #999;
+}
+
+.auth-close:hover {
+  color: var(--vermelho-principal);
 }
 
 .auth-icon {

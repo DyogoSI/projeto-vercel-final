@@ -18,6 +18,9 @@
       <a class="header-instagram" href="https://www.instagram.com/cartinhasparaopapainoel?igsi=eGU0aDIybTlmdHNj" target="_blank" rel="noopener" title="Instagram">
         <i class="fab fa-instagram"></i>
       </a>
+      <button class="header-person" id="headerPersonBtn" title="Login administrador">
+        <i class="fas fa-user"></i>
+      </button>
       <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
         <span></span>
         <span></span>
@@ -27,18 +30,18 @@
   </header>
   <nav>
     <a href="index.html">Sobre</a>
-    <a href="cadastro.html">Cadastro (Admin)</a>
+    <a href="cadastro.html" class="admin-only" style="display:none;">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
-    <a href="admin.html">Área do Admin</a>
+    <a href="admin.html" class="admin-only" style="display:none;">Área do Admin</a>
   </nav>
 
   <div class="drawer-overlay" id="drawerOverlay"></div>
   <aside class="side-drawer" id="sideDrawer">
     <button class="drawer-close" id="drawerClose" aria-label="Fechar menu">&times;</button>
     <a href="index.html">Sobre</a>
-    <a href="cadastro.html">Cadastro (Admin)</a>
+    <a href="cadastro.html" class="admin-only" style="display:none;">Cadastro (Admin)</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
-    <a href="admin.html">Área do Admin</a>
+    <a href="admin.html" class="admin-only" style="display:none;">Área do Admin</a>
   </aside>
   <div class="auth-gate" id="login-section">
     <div class="auth-box">
@@ -83,6 +86,15 @@
   <script>
     let adminCredentials = {};
 
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedCreds = window.SiteAuth && window.SiteAuth.getCreds();
+      if (savedCreds) {
+        adminCredentials = savedCreds;
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('cadastro-section').style.display = 'block';
+      }
+    });
+
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-user').value;
@@ -94,6 +106,7 @@
         });
         if (!response.ok) throw new Error('Usuário ou senha inválidos!');
         adminCredentials = { user, pass };
+        if (window.SiteAuth) window.SiteAuth.setCreds(user, pass);
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('cadastro-section').style.display = 'block';
       } catch (error) {
@@ -157,7 +170,24 @@
     </a>
   </div>
 
+  <div class="auth-gate" id="siteLoginGate" style="display:none;">
+    <div class="auth-box">
+      <button class="auth-close" id="siteLoginClose" aria-label="Fechar">&times;</button>
+      <div class="auth-icon"><i class="fas fa-user"></i></div>
+      <h2>Login de Administrador</h2>
+      <p class="auth-subtitle">Entre para liberar as opções de Cadastro e Área do Admin.</p>
+      <form id="site-login-form">
+        <label for="site-admin-user">Usuário:</label>
+        <input type="text" id="site-admin-user" required>
+        <label for="site-admin-pass">Senha:</label>
+        <input type="password" id="site-admin-pass" required>
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+
   <script src="js/nav-toggle.js"></script>
+  <script src="js/auth.js"></script>
 </body>
 
 </html>

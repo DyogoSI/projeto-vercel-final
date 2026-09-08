@@ -173,6 +173,9 @@
       <a class="header-instagram" href="https://www.instagram.com/cartinhasparaopapainoel?igsi=eGU0aDIybTlmdHNj" target="_blank" rel="noopener" title="Instagram">
         <i class="fab fa-instagram"></i>
       </a>
+      <button class="header-person" id="headerPersonBtn" title="Login administrador">
+        <i class="fas fa-user"></i>
+      </button>
       <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
         <span></span>
         <span></span>
@@ -182,18 +185,18 @@
   </header>
   <nav>
     <a href="index.html">Sobre o Projeto</a>
-    <a href="cadastro.html">Novo Cadastro</a>
+    <a href="cadastro.html" class="admin-only" style="display:none;">Novo Cadastro</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
-    <a href="admin.html">Área do Admin</a>
+    <a href="admin.html" class="admin-only" style="display:none;">Área do Admin</a>
   </nav>
 
   <div class="drawer-overlay" id="drawerOverlay"></div>
   <aside class="side-drawer" id="sideDrawer">
     <button class="drawer-close" id="drawerClose" aria-label="Fechar menu">&times;</button>
     <a href="index.html">Sobre o Projeto</a>
-    <a href="cadastro.html">Novo Cadastro</a>
+    <a href="cadastro.html" class="admin-only" style="display:none;">Novo Cadastro</a>
     <a href="cartinhas.html">Ver Cartinhas</a>
-    <a href="admin.html">Área do Admin</a>
+    <a href="admin.html" class="admin-only" style="display:none;">Área do Admin</a>
   </aside>
   <div class="container">
     <h1>Gerenciamento de Cartinhas</h1>
@@ -231,12 +234,21 @@
     let adminCredentials = {};
     let cartinhasAdminData = [];
 
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedCreds = window.SiteAuth && window.SiteAuth.getCreds();
+      if (savedCreds) {
+        adminCredentials = savedCreds;
+        fetchAndDisplayData();
+      }
+    });
+
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-user').value;
       const pass = document.getElementById('admin-pass').value;
-      adminCredentials = { user, pass }; 
-      fetchAndDisplayData();
+      adminCredentials = { user, pass };
+      const ok = await fetchAndDisplayData();
+      if (ok && window.SiteAuth) window.SiteAuth.setCreds(user, pass);
     });
 
     async function fetchAndDisplayData() {
@@ -246,13 +258,15 @@
           headers: { 'username': adminCredentials.user, 'password': adminCredentials.pass }
         });
         if (!response.ok) throw new Error('Usuário ou senha inválidos!');
-        
+
         const data = await response.json();
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('data-section').style.display = 'block';
         displayData(data);
+        return true;
       } catch (error) {
         alert(error.message);
+        return false;
       }
     }
 
@@ -366,6 +380,23 @@
     </a>
   </div>
 
+  <div class="auth-gate" id="siteLoginGate" style="display:none;">
+    <div class="auth-box">
+      <button class="auth-close" id="siteLoginClose" aria-label="Fechar">&times;</button>
+      <div class="auth-icon"><i class="fas fa-user"></i></div>
+      <h2>Login de Administrador</h2>
+      <p class="auth-subtitle">Entre para liberar as opções de Cadastro e Área do Admin.</p>
+      <form id="site-login-form">
+        <label for="site-admin-user">Usuário:</label>
+        <input type="text" id="site-admin-user" required>
+        <label for="site-admin-pass">Senha:</label>
+        <input type="password" id="site-admin-pass" required>
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+
   <script src="js/nav-toggle.js"></script>
+  <script src="js/auth.js"></script>
 </body>
 </html>
